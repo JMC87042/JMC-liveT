@@ -9,133 +9,66 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || 'admin_key_default';
 
-// ============ MIDDLEWARE ============
-
+// Middleware
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(fileUpload());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// ============ MEMORY STORAGE ============
+// static
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
 
-const hostVoiceSamples = {};
-const validApiKeys = {
-  'API_KEY_A': { hostName: 'Host A', plan: 'premium' },
-  'API_KEY_B': { hostName: 'Host B', plan: 'basic' }
-};
-const tiktokSessions = {};
-const hostSessionTimers = {};
+/* =========================
+   🔥 DEBUG ROUTE (핵심)
+========================= */
+app.get('/debug-files', (req, res) => {
+  res.json({
+    dirname: __dirname,
+    cwd: process.cwd(),
+    publicPath,
+    publicExists: fs.existsSync(path.join(__dirname, 'public')),
+    indexExists: fs.existsSync(path.join(__dirname, 'public', 'index.html')),
+    files: fs.existsSync(__dirname) ? fs.readdirSync(__dirname) : []
+  });
+});
 
-// ============ API ROUTES ============
-
+/* =========================
+   API
+========================= */
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok',
-    message: 'JMC Global Live Translation is running',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok' });
 });
 
-app.post('/api/start-sample-recording', (req, res) => {
-  const recordingSessionId = `REC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  if (!global.recordingSessions) {
-    global.recordingSessions = {};
-  }
-  
-  global.recordingSessions[recordingSessionId] = {
-    audioChunks: [],
-    createdAt: Date.now()
-  };
-  
-  console.log(`🎤 샘플 녹음 시작: ${recordingSessionId}`);
-  res.json({ 
-    recordingSessionId: recordingSessionId,
-    message: '30초 샘플 녹음 시작'
-  });
-});
-
-app.post('/api/record-sample-chunk', (req, res) => {
-  const recordingSessionId = req.headers['x-recording-session-id'];
-  const { audioChunk } = req.body;
-  
-  if (!global.recordingSessions || !global.recordingSessions[recordingSessionId]) {
-    return res.status(401).json({ error: '녹음 세션 없음' });
-  }
-  
-  global.recordingSessions[recordingSessionId].audioChunks.push(audioChunk);
-  res.json({ 
-    status: 'recording',
-    duration: Date.now() - global.recordingSessions[recordingSessionId].createdAt
-  });
-});
-
-app.post('/api/finalize-sample-recording', (req, res) => {
-  const recordingSessionId = req.headers['x-recording-session-id'];
-  const { hostUsername } = req.body;
-  
-  if (!global.recordingSessions || !global.recordingSessions[recordingSessionId]) {
-    return res.status(401).json({ error: '녹음 세션 없음' });
-  }
-  
-  const session = global.recordingSessions[recordingSessionId];
-  const combinedAudio = Buffer.concat(
-    session.audioChunks.map(chunk => {
-      if (typeof chunk === 'string') {
-        return Buffer.from(chunk, 'base64');
-      }
-      return chunk;
-    })
-  );
-  
-  hostVoiceSamples[hostUsername] = combinedAudio;
-  delete global.recordingSessions[recordingSessionId];
-  
-  console.log(`✅ 호스트 샘플 저장됨: ${hostUsername}`);
-  res.json({ 
-    message: '샘플 녹음 완료 및 저장됨',
-    hostUsername: hostUsername
-  });
-});
-
-app.post('/api/translate', (req, res) => {
-  const { text, targetLang } = req.body;
-  const sourceText = encodeURIComponent(text);
-  const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${sourceText}&langpair=ko|${targetLang}`;
-  
-  fetch(myMemoryUrl)
-    .then(response => response.json())
-    .then(data => {
-      const translation = data.responseData.translatedText;
-      res.json({ translation });
-    })
-    .catch(error => {
-      console.error('번역 오류:', error);
-      res.status(500).json({ error: '번역 실패' });
-    });
-});
-
-// ============ STATIC FILE & CATCH-ALL ============
-
+/* =========================
+   ROOT
+========================= */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const filePath = path.join(publicPath, 'index.html');
+  if (!fs.existsSync(filePath)) {
+    return res.status(500).send('index.html missing on server');
+  }
+  res.sendFile(filePath);
 });
 
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+/* =========================
+   SPA fallback
+========================= */
+app.get('*', (req, res) => {
+  const filePath = path.join(publicPath, 'index.html');
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('index.html not found (Railway deploy issue)');
+  }
+  res.sendFile(filePath);
 });
 
-// ============ START SERVER ============
-
-app.listen(PORT, () => {
-  console.log(`\n${'='.repeat(50)}`);
-  console.log(`🌍 JMC Global Live Translation`);
-  console.log(`📍 포트: ${PORT}`);
-  console.log(`📁 공개 폴더: ${path.join(__dirname, 'public')}`);
-  console.log(`${'='.repeat(50)}\n`);
+/* =========================
+   START
+========================= */
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`포트: ${PORT}`);
+  console.log(`공개 폴더: ${publicPath}`);
+  console.log("public exists:", fs.existsSync(publicPath));
+  console.log("index exists:", fs.existsSync(path.join(publicPath, 'index.html')));
 });
-
-module.exports = app;
