@@ -610,6 +610,27 @@
             await startAudioCapture();
 
             if (app.recognition) {
+                // 선택된 언어에 맞게 인식 언어 설정
+                const langMap = {
+                    'ko': 'ko-KR',
+                    'ja': 'ja-JP',
+                    'zh': 'zh-CN',
+                    'es': 'es-ES',
+                    'fr': 'fr-FR',
+                    'de': 'de-DE',
+                    'pt': 'pt-BR',
+                    'ru': 'ru-RU',
+                    'it': 'it-IT',
+                    'tr': 'tr-TR',
+                    'th': 'th-TH',
+                    'id': 'id-ID',
+                    'fil': 'fil-PH',
+                    'ms': 'ms-MY',
+                    'en': 'en-US'
+                };
+                app.recognition.lang = langMap[app.selectedLanguage] || 'ko-KR';
+                console.log(`🎤 음성 인식 언어: ${app.recognition.lang}`);
+                
                 app.recognition.start();
                 setupRecognitionHandlers();
             }
