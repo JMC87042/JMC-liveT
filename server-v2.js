@@ -16,7 +16,11 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(fileUpload());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Static 파일 제공 - 절대 경로 사용
+const publicPath = path.join(__dirname, 'public');
+console.log('🔍 Static files path:', publicPath);
+app.use(express.static(publicPath));
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_KEY = process.env.ADMIN_KEY || 'admin_key_default';
@@ -32,7 +36,6 @@ const hostSessionTimers = {};
 
 // ============ REAL-TIME SAMPLE RECORDING API ============
 
-// 실시간 샘플 녹음 세션 시작
 app.post('/api/start-sample-recording', (req, res) => {
   const { apiKey } = req.body;
   
@@ -60,7 +63,6 @@ app.post('/api/start-sample-recording', (req, res) => {
   });
 });
 
-// 샘플 오디오 데이터 수신
 app.post('/api/record-sample-chunk', (req, res) => {
   const recordingSessionId = req.headers['x-recording-session-id'];
   const { audioChunk } = req.body;
@@ -81,7 +83,6 @@ app.post('/api/record-sample-chunk', (req, res) => {
   });
 });
 
-// 샘플 녹음 완료 및 처리
 app.post('/api/finalize-sample-recording', (req, res) => {
   const recordingSessionId = req.headers['x-recording-session-id'];
   const { hostUsername } = req.body;
@@ -118,7 +119,6 @@ app.post('/api/finalize-sample-recording', (req, res) => {
 
 // ============ SESSION API ============
 
-// TikTok 세션 등록
 app.post('/api/register-tiktok-session', (req, res) => {
   const { apiKey, clientIp, hostUsername } = req.body;
   
@@ -159,7 +159,6 @@ app.post('/api/register-tiktok-session', (req, res) => {
   });
 });
 
-// 호스트 음성 검증
 app.post('/api/verify-host-voice', async (req, res) => {
   const hostUsername = req.body.hostUsername;
   const sessionId = req.headers['x-session-id'];
@@ -226,13 +225,6 @@ app.post('/api/verify-host-voice', async (req, res) => {
 
 app.post('/api/translate', (req, res) => {
   const { text, targetLang } = req.body;
-  const sessionId = req.headers['x-session-id'];
-  
-  const session = tiktokSessions[sessionId];
-  if (!session || !session.isActive) {
-    return res.status(401).json({ error: '세션 비활성' });
-  }
-  
   const sourceText = encodeURIComponent(text);
   const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${sourceText}&langpair=ko|${targetLang}`;
   
@@ -271,7 +263,6 @@ async function compareVoicesOnServer(currentAudio, hostSample) {
     }
     
     byteSimilarity = sampleSize > 0 ? matches / sampleSize : 0;
-    
     const similarity = (lengthSimilarity * 0.3) + (byteSimilarity * 0.7);
     
     return similarity;
@@ -291,14 +282,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ============ ROOT ROUTE ============
+// ============ CATCH-ALL ROUTE (SPA) ============
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index-final.html'));
-});
-
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index-final.html'));
+app.get('*', (req, res) => {
+  const indexPath = path.join(publicPath, 'index-final.html');
+  console.log('📄 Serving:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // ============ START SERVER ============
@@ -308,6 +297,7 @@ app.listen(PORT, () => {
   console.log(`🌍 JMC Global Live Translation`);
   console.log(`📍 서버 실행: http://localhost:${PORT}`);
   console.log(`🔌 포트: ${PORT}`);
+  console.log(`📁 Public path: ${publicPath}`);
   console.log(`${'='.repeat(50)}\n`);
 });
 
