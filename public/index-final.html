@@ -111,6 +111,17 @@
             transition: font-size 0.2s;
         }
 
+        .device-notice {
+            font-size: 10px;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 2px solid #667eea;
+            line-height: 1.5;
+        }
+
         /* 컨트롤 패널 */
         .control-panel {
             padding: 12px;
@@ -290,16 +301,6 @@
             font-weight: 600;
         }
 
-        .pip-notice {
-            font-size: 9px;
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-            padding: 6px;
-            border-radius: 5px;
-            border-left: 2px solid #667eea;
-            margin-top: 6px;
-        }
-
         /* 푸터 */
         .footer {
             padding: 10px;
@@ -365,6 +366,10 @@
                         <button class="font-btn" id="fontLargeBtn" title="글자 크게">A+</button>
                     </div>
                 </div>
+
+                <!-- 기종별 공지 -->
+                <div class="device-notice" id="deviceNotice"></div>
+
                 <div class="translation-text" id="translationText">
                     <div style="text-align: center; padding: 20px; color: #999;">
                         "시작" 버튼을 누르면 실시간 번역이 시작됩니다.
@@ -417,10 +422,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="pip-notice">
-                💡 TikTok을 PIP 모드로 설정해서 사용하세요!
-            </div>
         </div>
 
         <!-- 푸터 -->
@@ -458,6 +459,29 @@
             'US': { code: 'en', name: 'English', tts: 'en-US' }
         };
 
+        // 기종 감지
+        function detectDevice() {
+            const ua = navigator.userAgent;
+            
+            if (/iPad/.test(ua)) return 'iPad';
+            if (/iPhone|iPod/.test(ua)) return 'iPhone';
+            if (/Android/.test(ua)) return 'Android';
+            
+            return 'Other';
+        }
+
+        // 기종별 공지
+        function getDeviceNotice(device) {
+            const notices = {
+                'iPhone': '📱 틱톡을 PIP(작은 창)으로 줄이고<br/>이 화면을 전체화면으로 보세요.<br/>번역 TTS가 끊기지 않아요 😊',
+                'Android': '🤖 화면 분할 — 위쪽 틱톡, 아래쪽 이 화면.<br/>채팅·선물·좋아요 동시에 가능해요 😊',
+                'iPad': '📱 화면 분할 — 왼쪽 틱톡, 오른쪽 이 화면.<br/>번역 TTS가 끊기지 않아요 😊',
+                'Other': '💡 TikTok과 함께 이 화면을 열어두세요.<br/>실시간 번역을 받을 수 있습니다 😊'
+            };
+            
+            return notices[device] || notices['Other'];
+        }
+
         // 앱 상태
         const app = {
             isListening: false,
@@ -473,7 +497,8 @@
             synth: window.speechSynthesis,
             recordingSessionId: null,
             audioChunks: [],
-            userCountry: 'US'
+            userCountry: 'US',
+            device: detectDevice()
         };
 
         // UI 요소
@@ -481,6 +506,7 @@
         const stopBtn = document.getElementById('stopBtn');
         const languageSelect = document.getElementById('languageSelect');
         const translationText = document.getElementById('translationText');
+        const deviceNotice = document.getElementById('deviceNotice');
         const ttsToggle = document.getElementById('ttsToggle');
         const volumeSlider = document.getElementById('volumeSlider');
         const speedSlider = document.getElementById('speedSlider');
@@ -489,6 +515,13 @@
         const fontSmallBtn = document.getElementById('fontSmallBtn');
         const fontResetBtn = document.getElementById('fontResetBtn');
         const fontLargeBtn = document.getElementById('fontLargeBtn');
+
+        // 기종별 공지 표시
+        function initializeDeviceNotice() {
+            const notice = getDeviceNotice(app.device);
+            deviceNotice.innerHTML = notice;
+            console.log('기종:', app.device);
+        }
 
         // IP 기반 국가 감지
         async function detectCountry() {
@@ -508,7 +541,6 @@
             const countryLang = languagesByCountry[app.userCountry];
             const defaultLang = countryLang || languagesByCountry['US'];
 
-            // 드롭다운 생성
             Object.entries(languagesByCountry).forEach(([country, lang]) => {
                 const option = document.createElement('option');
                 option.value = lang.code;
@@ -516,7 +548,6 @@
                 languageSelect.appendChild(option);
             });
 
-            // 기본값 설정
             languageSelect.value = defaultLang.code;
             app.selectedLanguage = defaultLang.code;
             app.selectedLanguageCode = defaultLang.code;
@@ -540,10 +571,8 @@
             stopBtn.disabled = false;
             translationText.innerHTML = '';
 
-            // 오디오 권한 요청 + 30초 샘플링
             await startAudioCapture();
 
-            // 음성 인식 시작
             if (app.recognition) {
                 app.recognition.start();
                 setupRecognitionHandlers();
@@ -578,13 +607,11 @@
 
                 mediaRecorder.start(100);
 
-                // 30초 후 완료
                 setTimeout(() => {
                     if (mediaRecorder.state === 'recording') {
                         mediaRecorder.stop();
                         stream.getTracks().forEach(track => track.stop());
 
-                        // 샘플 저장
                         const reader = new FileReader();
                         reader.onloadend = () => {
                             const base64 = reader.result.split(',')[1];
@@ -661,14 +688,12 @@
                 const data = await response.json();
                 const translation = data.translation;
 
-                // UI에 표시
                 if (translationText.innerHTML === '' || translationText.innerHTML.includes('시작하면')) {
                     translationText.innerHTML = `<div>${translation}</div>`;
                 } else {
                     translationText.innerHTML += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(102, 126, 234, 0.1);">${translation}</div>`;
                 }
 
-                // TTS 재생
                 if (app.ttsEnabled) {
                     speakTranslation(translation);
                 }
@@ -735,6 +760,7 @@
 
         // 초기화
         (async () => {
+            initializeDeviceNotice();
             await detectCountry();
             initializeLanguages();
         })();
