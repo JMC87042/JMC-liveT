@@ -1,355 +1,779 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌍 JMC Global Live Translation - Viewer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            min-height: 100vh;
-            color: #fff;
-        }
-
-        .container {
-            max-width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            padding: 14px 16px;
-            background: rgba(10, 14, 39, 0.95);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .header-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #667eea;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 10px;
-            padding: 12px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .box-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .translation-text {
-            flex: 1;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #fff;
-            word-break: break-word;
-            overflow-y: auto;
-            padding: 8px;
-        }
-
-        .footer {
-            padding: 10px;
-            background: rgba(10, 14, 39, 0.95);
-            border-top: 1px solid rgba(102, 126, 234, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .control-item {
-            display: flex;
-            gap: 4px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.95);
-        }
-
-        .btn-secondary {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border: 1px solid rgba(102, 126, 234, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .info-box {
-            font-size: 10px;
-            color: #999;
-            padding: 6px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 4px;
-        }
-
-        .status-text {
-            font-size: 10px;
-            color: #667eea;
-            text-align: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>JMC Global Live Translation v1.0</title>
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#18181f;
+  --border:#252530;--border2:#2e2e3e;
+  --blue:#4f8ef7;--yellow:#f7c94f;--green:#2ecc71;--red:#e74c3c;
+  --text:#e8e8f0;--text2:#8888a0;--text3:#44445a;
+  --r:10px;--fs:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-text-size-adjust:100%}
+#app{display:flex;flex-direction:column;height:100dvh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 12px;height:36px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;white-space:nowrap;transition:opacity .15s;-webkit-tap-highlight-color:transparent;min-width:44px;min-height:44px}
+.btn:active{opacity:.7}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.btn-sm{height:28px;min-height:28px;padding:0 8px;font-size:11px}
+.tog{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;display:inline-block}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-sl{position:absolute;inset:0;background:var(--border2);border-radius:20px;transition:.2s}
+.tog-sl:before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.tog-sl{background:var(--blue)}
+.tog input:checked+.tog-sl:before{transform:translateX(16px)}
+/* 입장 */
+#entry{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px}
+#entry h1{font-size:17px;font-weight:700;color:var(--blue);text-align:center}
+#nick-inp{width:100%;max-width:280px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:16px;text-align:center;outline:none;font-family:inherit}
+#nick-inp:focus{border-color:var(--blue)}
+#entry-btn{width:100%;max-width:280px;height:48px;font-size:15px}
+#entry-err{color:var(--red);font-size:12px;min-height:16px;text-align:center}
+/* 메인 */
+#main{flex:1;display:none;flex-direction:column;overflow:hidden;min-height:0}
+/* 상단바 */
+#topbar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.title{font-size:10px;font-weight:700;color:var(--blue)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.dot.live{background:var(--red);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* 컨트롤바 */
+#ctrlbar{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.sep{width:1px;height:16px;background:var(--border2);flex-shrink:0}
+#fctrls{display:flex;align-items:center;gap:3px}
+#fctrls span{font-size:10px;color:var(--text2);min-width:18px;text-align:center}
+.fbtn{width:26px;height:26px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#pip-btn{display:none}
+#pip-btn.show{display:inline-flex}
+/* 배너 */
+#banner{display:none;padding:5px 10px;text-align:center;font-size:11px;flex-shrink:0}
+#banner.return{display:block;background:rgba(46,204,113,.1);border-bottom:1px solid rgba(46,204,113,.3);color:var(--green)}
+#banner.pip{display:block;background:rgba(79,142,247,.08);border-bottom:1px solid rgba(79,142,247,.2);color:var(--blue)}
+#banner.offline{display:block;background:rgba(231,76,60,.08);border-bottom:1px solid rgba(231,76,60,.2);color:var(--red)}
+/* 콘텐츠 */
+#content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.cap-panel{display:flex;flex-direction:column;overflow:hidden;border-bottom:1px solid var(--border);flex:0 0 auto;height:100px;min-height:70px}
+.cap-hdr{padding:4px 10px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.cap-hdr.single{color:var(--text2);background:var(--bg2)}
+.cap-hdr.blue{color:var(--blue);background:rgba(79,142,247,.07)}
+.cap-hdr.yellow{color:var(--yellow);background:rgba(247,201,79,.07)}
+.cap-body{flex:1;padding:8px 10px;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0}
+.cap-text{font-size:var(--fs);line-height:1.5;word-break:break-word;color:var(--text);min-height:28px}
+/* 푸터 */
+#footer{padding:3px 8px;text-align:center;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+.ft-contact{font-size:9px;color:var(--text2);margin-bottom:1px}
+.ft-links{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:1px}
+.ft-links a{font-size:9px;color:var(--blue);text-decoration:none}
+.ft-links a:hover{text-decoration:underline}
+.ft-copy{font-size:8px;color:var(--text3)}
+/* 채팅 입력 */
+#chat-input-wrap{display:flex;gap:5px;padding:5px 8px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+#chat-inp{flex:1;padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+#chat-inp:focus{border-color:var(--blue)}
+#btn-send{padding:6px 12px;border-radius:7px;background:var(--blue);color:#fff;border:none;font-size:12px;cursor:pointer;flex-shrink:0}
+/* TTS 승인 배너 */
+#tts-approval{display:none;padding:6px 10px;background:rgba(46,204,113,.15);border-top:1px solid rgba(46,204,113,.3);color:var(--green);font-size:11px;text-align:center;flex-shrink:0}
+#tts-approval.show{display:block}
+/* 채팅 목록 */
+#viewer-chat-list{flex:1;overflow-y:auto;padding:4px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px;max-height:120px}
+.vcmsg{font-size:12px;padding:2px 6px;border-radius:4px;word-break:break-word;color:var(--text2)}
+.vcmsg.mine{color:var(--text)}
+#toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-title">
-                <span>👁️</span>
-                <span>JMC VIEWER MODE - 실시간 번역</span>
-            </div>
-        </div>
+<div id="app">
 
-        <div class="main-content">
-            <div class="box">
-                <div class="box-title">🌐 번역</div>
-                <div class="translation-text" id="translationText">
-                    호스트의 음성을 기다리는 중...
-                </div>
-            </div>
-        </div>
+<!-- 입장 화면 -->
+<div id="entry">
+  <h1>JMC Global Live Translation v1.0</h1>
+  <p id="entry-room" style="font-size:12px;color:var(--text2)">—</p>
+  <p id="entry-lang-info" style="font-size:11px;color:var(--text2)">언어 감지 중...</p>
+  <input id="nick-inp" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="닉네임">
+  <div id="entry-err"></div>
+  <div id="entry-device-guide" style="margin:8px 0;padding:8px 10px;border-radius:8px;font-size:11px;line-height:1.5;display:none"></div>
+  <button class="btn btn-blue" id="entry-btn" onclick="doEntry()">입장하기</button>
+</div>
 
-        <div class="footer">
-            <div class="control-item">
-                <button class="btn btn-primary" id="startBtn">🎧 수신 시작</button>
-                <button class="btn btn-secondary" id="stopBtn" disabled>⏹️ 중지</button>
-            </div>
-            <div class="info-box">
-                ✅ "수신 시작"을 누르면 호스트의 음성을 받기 시작합니다.
-            </div>
-            <div class="status-text" id="statusText">준비 중</div>
-        </div>
+<!-- 메인 화면 -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <div class="title">JMC Global Live Translation v1.0</div>
+      <div style="font-size:10px;color:var(--text2)" id="room-lbl">—</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap">
+      <div class="dot" id="dot"></div>
+      <span id="live-txt" style="font-size:11px;font-weight:700">대기 중</span>
+      <span id="lang-info" style="font-size:10px;color:var(--text2)">🌐</span>
+    </div>
+  </div>
+  <div id="ctrlbar">
+    <button id="btn-mute" onclick="toggleMute()" style="font-size:18px;background:none;border:none;cursor:pointer;padding:0 4px;min-width:32px;min-height:32px;-webkit-tap-highlight-color:transparent">🔊</button>
+    <input type="range" id="vol-sl" min="0" max="1" step="0.1" value="1" style="width:55px;height:4px;accent-color:var(--blue)">
+    <div class="sep"></div>
+    <label style="font-size:10px;color:var(--text2)">속도</label>
+    <input type="range" id="rate-sl" min="0.5" max="2" step="0.1" value="1" style="width:55px;height:4px;accent-color:var(--blue)">
+    <div class="sep"></div>
+    <div id="fctrls">
+      <button class="fbtn" onclick="chgFont(-2)">A-</button>
+      <span id="fval">22</span>
+      <button class="fbtn" onclick="chgFont(2)">A+</button>
     </div>
 
-    <script>
-        const app = {
-            isListening: false,
-            hostName: 'tnal.sl',
-            pollingInterval: null,
-            lastTimestamp: 0
-        };
+  </div>
+  <div id="banner"></div>
+  <div id="content">
+    <div class="cap-panel" id="single-panel">
+      <div class="cap-hdr single"><span>📡</span><span id="lbl-single">실시간 번역</span></div>
+      <div class="cap-body"><div class="cap-text" id="single-cap"></div></div>
+    </div>
+    <div class="cap-panel" id="a-panel" style="display:none">
+      <div class="cap-hdr blue"><span>🔵</span><span id="lbl-host-a">호스트</span></div>
+      <div class="cap-body"><div class="cap-text" id="a-cap"></div></div>
+    </div>
+    <div class="cap-panel" id="b-panel" style="display:none">
+      <div class="cap-hdr yellow"><span>🟡</span><span id="lbl-host-b">상대방</span></div>
+      <div class="cap-body"><div class="cap-text" id="b-cap"></div></div>
+    </div><!-- TTS 승인 배너 -->
+    <div id="tts-approval"></div>
+    <!-- 채팅 목록 -->
+    <div id="viewer-chat-list"></div>
+    <!-- 채팅 입력 -->
+    <div id="chat-input-wrap">
+      <input id="chat-inp" type="text" maxlength="100" placeholder="메시지 입력...">
+      <button id="btn-send" onclick="sendChat()">전송</button>
+    </div>
+    <div id="footer">
+    <div class="ft-contact" id="lbl-contact">Contact</div>
+    <div class="ft-links">
+      <a href="https://www.tiktok.com/@jemcymusic" target="_blank" rel="noopener">TikTok @jemcymusic</a>
+      <a href="https://www.youtube.com/@jemcymusic" target="_blank" rel="noopener">YouTube @jemcymusic</a>
+      <a href="https://open.kakao.com/o/sVLHFnui" target="_blank" rel="noopener">KakaoTalk</a>
+    </div>
+    <div class="ft-copy">© 2026 JMC. All rights reserved.</div>
+  </div>
+</div>
+</div>
+<div id="toast"></div>
 
-        // URL에서 호스트명 추출
-        function getHostFromURL() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('host')?.replace('@', '') || 'tnal.sl';
+<script>
+(function(){
+/* ── Firebase 설정 (여기에 본인 설정값 입력) ── */
+const FB_CONFIG={
+  apiKey:"AIzaSyD0faMYvNiQEYOoFobibXb9yIpZOp12Qq0",
+  authDomain:"jmc-global-live-translation.firebaseapp.com",
+  databaseURL:"https://jmc-global-live-translation-default-rtdb.firebaseio.com",
+  projectId:"jmc-global-live-translation",
+  storageBucket:"jmc-global-live-translation.firebasestorage.app",
+  messagingSenderId:"1096614053674",
+  appId:"1:1096614053674:web:f70af4e8ed639795c40053"
+};
+const DEMO=!FB_CONFIG.databaseURL;
+
+/* ── 데모 모드 ── */
+const bc=DEMO?new BroadcastChannel('jmc_demo'):null;
+const _subs={};
+function _key(p){return 'jmc__'+p.replace(/\//g,'__');}
+function _dSet(p,v){
+  localStorage.setItem(_key(p),JSON.stringify(v));
+  bc.postMessage({t:'set',p,v});
+  (_subs[p]||[]).forEach(f=>f(v));
+}
+function _dGet(p){const r=localStorage.getItem(_key(p));return r?JSON.parse(r):null;}
+function _dOn(p,cb){
+  if(!_subs[p])_subs[p]=[];
+  cb(_dGet(p));
+  _subs[p].push(cb);
+  bc.addEventListener('message',e=>{
+    if(e.data.t==='set'&&e.data.p===p)cb(e.data.v);
+    if(e.data.t==='push'&&e.data.p===p){
+      const cur=_dGet(p)||{};cur[e.data.id]=e.data.v;cb(cur);
+    }
+    if(e.data.t==='rm'&&e.data.p===p)cb(null);
+  });
+}
+async function _dPush(p,v){
+  const id='id_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const cur=_dGet(p)||{};cur[id]=v;
+  localStorage.setItem(_key(p),JSON.stringify(cur));
+  bc.postMessage({t:'push',p,id,v});
+  (_subs[p]||[]).forEach(f=>f(cur));
+  return id;
+}
+
+/* ── Firebase 래퍼 ── */
+let _db=null,_fbMod=null;
+async function initFB(){
+  if(DEMO)return;
+  const m=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const m2=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+  _fbMod=m2;
+  const app=m.initializeApp(FB_CONFIG);
+  _db=m2.getDatabase(app);
+}
+async function fbSet(p,v){if(DEMO){_dSet(p,v);return;}await _fbMod.set(_fbMod.ref(_db,p),v);}
+function fbOn(p,cb){if(DEMO){_dOn(p,cb);return;}if(!_db||!_fbMod){console.warn('fbOn not ready:'+p);return;}_fbMod.onValue(_fbMod.ref(_db,p),s=>cb(s.exists()?s.val():null));}
+async function fbPush(p,v){if(DEMO)return _dPush(p,v);const r=await _fbMod.push(_fbMod.ref(_db,p),v);return r.key;}
+async function fbRm(p){if(DEMO){return;}await _fbMod.remove(_fbMod.ref(_db,p));}
+
+/* ── 언어 설정 ── */
+const LANGS=[
+  {code:'ko',sl:'ko-KR'},{code:'zh-CN',sl:'zh-CN'},{code:'hi',sl:'hi-IN'},{code:'en',sl:'en-US'},
+  {code:'es',sl:'es-ES'},{code:'pt',sl:'pt-BR'},{code:'ru',sl:'ru-RU'},{code:'fr',sl:'fr-FR'},
+  {code:'ja',sl:'ja-JP'},{code:'de',sl:'de-DE'},{code:'it',sl:'it-IT'},{code:'ar',sl:'ar-SA'},
+  {code:'th',sl:'th-TH'},{code:'id',sl:'id-ID'},{code:'tr',sl:'tr-TR'},{code:'vi',sl:'vi-VN'},
+];
+const FLAGS={ko:'🇰🇷',en:'🇺🇸',ja:'🇯🇵','zh-CN':'🇨🇳',zh:'🇨🇳',hi:'🇮🇳',es:'🇪🇸',pt:'🇧🇷',ru:'🇷🇺',fr:'🇫🇷',de:'🇩🇪',it:'🇮🇹',ar:'🇸🇦',th:'🇹🇭',id:'🇮🇩',tr:'🇹🇷',vi:'🇻🇳',tl:'🇵🇭'};
+const CC={KR:'ko',JP:'ja',CN:'zh-CN',TW:'zh-CN',HK:'zh-CN',TH:'th',VN:'vi',ID:'id',US:'en',GB:'en',AU:'en',CA:'en',IN:'hi',PH:'en',SA:'ar',AE:'ar',FR:'fr',DE:'de',ES:'es',BR:'pt',RU:'ru',IT:'it',TR:'tr'};
+
+const LBL={
+  ko:{entry:'입장하기',nick:'닉네임',tts:'TTS',vol:'볼륨',rate:'속도',single:'실시간 번역',host_a:'호스트',host_b:'상대방',chat:'채팅',send:'전송',contact:'문의',offline:'방송이 종료되었습니다',waiting:'대기 중',return_banner:'복귀하셨습니다. 이어서 번역됩니다.',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ 무음 스위치를 꺼주세요 (옆면 스위치)'},
+  en:{entry:'Enter',nick:'Nickname',tts:'TTS',vol:'Vol',rate:'Speed',single:'Live Translation',host_a:'Host',host_b:'Guest',chat:'Chat',send:'Send',contact:'Contact',offline:'Broadcast ended',waiting:'Waiting',return_banner:'Welcome back. Resuming translation.',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ Please turn off silent mode (side switch)'},
+  ja:{entry:'入場',nick:'ニックネーム',tts:'TTS',vol:'音量',rate:'速度',single:'リアルタイム翻訳',host_a:'ホスト',host_b:'相手',chat:'チャット',send:'送信',contact:'お問い合わせ',offline:'配信が終了しました',waiting:'待機中',return_banner:'戻りました。翻訳を再開します。',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ マナーモードをオフにしてください'},
+  'zh-CN':{entry:'进入',nick:'昵称',tts:'TTS',vol:'音量',rate:'速度',single:'实时翻译',host_a:'主播',host_b:'对方',chat:'聊天',send:'发送',contact:'联系',offline:'直播已结束',waiting:'等待中',return_banner:'欢迎回来，继续翻译。',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ 请关闭静音模式'},
+  th:{entry:'เข้าร่วม',nick:'ชื่อเล่น',tts:'TTS',vol:'เสียง',rate:'ความเร็ว',single:'แปลสด',host_a:'โฮสต์',host_b:'อีกฝ่าย',chat:'แชท',send:'ส่ง',contact:'ติดต่อ',offline:'การออกอากาศสิ้นสุดแล้ว',waiting:'กำลังรอ',return_banner:'ยินดีต้อนรับกลับ กำลังแปลต่อ',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ กรุณาปิดโหมดเงียบ'},
+  vi:{entry:'Tham gia',nick:'Biệt danh',tts:'TTS',vol:'Âm lượng',rate:'Tốc độ',single:'Dịch trực tiếp',host_a:'Chủ nhà',host_b:'Khách',chat:'Trò chuyện',send:'Gửi',contact:'Liên hệ',offline:'Buổi phát sóng đã kết thúc',waiting:'Đang chờ',return_banner:'Chào mừng trở lại. Tiếp tục dịch.',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ Vui lòng tắt chế độ im lặng'},
+  id:{entry:'Masuk',nick:'Nama panggilan',tts:'TTS',vol:'Volume',rate:'Kecepatan',single:'Terjemahan langsung',host_a:'Host',host_b:'Tamu',chat:'Obrolan',send:'Kirim',contact:'Kontak',offline:'Siaran telah berakhir',waiting:'Menunggu',return_banner:'Selamat datang kembali. Melanjutkan terjemahan.',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ Harap matikan mode senyap'},
+  ar:{entry:'دخول',nick:'اسم المستخدم',tts:'TTS',vol:'صوت',rate:'سرعة',single:'ترجمة مباشرة',host_a:'المضيف',host_b:'الضيف',chat:'دردشة',send:'إرسال',contact:'تواصل',offline:'انتهى البث',waiting:'انتظار',return_banner:'مرحباً بعودتك. يستمر الترجمة.',pip_guide:'📱 iPhone: 틱톡을 PIP로 줄이고 이 화면을 전체화면으로 보세요.',mute_warn:'⚠️ يرجى إيقاف وضع الصمت'},
+};
+
+/* ── 상태 ── */
+let myLang='ko',myFlag='🇰🇷',roomId='',nickname='',viewerId='';
+let ttsEnabled=true,vol=1,rate=1;
+let fontSize=parseInt(localStorage.getItem('jmc_fs_v')||'22');
+let lastTs=0,joinTs=0,isHidden=false,returnTs=0;
+let L=LBL.ko;
+let ttsUnlocked=false;
+
+function s(id,t){const e=document.getElementById(id);if(e)e.textContent=t;}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showBanner(type,msg){
+  const b=document.getElementById('banner');
+  b.className='';b.textContent=msg;b.classList.add(type);
+  if(type!=='offline')setTimeout(()=>{b.className='';},5000);
+}
+
+/* ── 언어 감지 ── */
+async function detectLang(){
+  try{
+    const r=await fetch('https://ipapi.co/json/');
+    const d=await r.json();
+    const code=CC[d.country_code]||'ko';
+    myLang=code;myFlag=FLAGS[code]||'🌐';
+    L=LBL[code]||LBL.ko;
+    document.getElementById('entry-lang-info').textContent=myFlag+' '+myLang.toUpperCase()+' 자동감지';
+    applyLabels();
+  }catch(e){myLang='ko';myFlag='🇰🇷';}
+}
+function applyLabels(){
+  s('entry-btn',L.entry||'입장하기');
+  document.getElementById('nick-inp').placeholder=L.nick||'닉네임';
+  s('lbl-tts',L.tts||'TTS');
+  s('lbl-vol',L.vol||'볼륨');
+  s('lbl-rate',L.rate||'속도');
+  s('lbl-single',L.single||'실시간 번역');
+  s('lbl-host-a',L.host_a||'호스트');
+  s('lbl-host-b',L.host_b||'상대방');
+  s('btn-send',L.send||'전송');
+  s('lbl-contact',L.contact||'Contact');
+  // PIP 버튼 표시: Document PIP(Android) 또는 Video PIP(iOS) 지원 시
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  const hasDocPip='documentPictureInPicture' in window;
+  const hasVideoPip=!!document.createElement('video').requestPictureInPicture||isIOS;
+  if(hasDocPip||hasVideoPip)document.getElementById('pip-btn').classList.add('show');
+  if(isIOS&&!hasDocPip)showBanner('pip',L.pip_guide||'📱 PIP 버튼 클릭 후 화면 아래 재생 버튼을 눌러주세요.');
+}
+
+/* ── iOS TTS 언락 ── */
+function unlockAudio(){
+  if(ttsUnlocked)return;
+  ttsUnlocked=true;
+  // TTS 워밍업만 - Web Audio/HTML audio는 틱톡 오디오 세션 충돌
+  try{
+    const dummy=new SpeechSynthesisUtterance(' ');
+    dummy.volume=0;dummy.rate=2;
+    speechSynthesis.speak(dummy);
+  }catch(e){}
+}
+
+/* ── 입장 ── */
+window.doEntry=async function(){
+  const nick=document.getElementById('nick-inp').value.trim();
+  if(!nick){s('entry-err',L.nick||'닉네임을 입력하세요');return;}
+  s('entry-err','');
+  nickname=nick;
+  viewerId='v_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  // ⚡ iOS 핵심: 클릭 직후 동기적으로 TTS 언락 (await 전에 반드시 실행)
+  unlockAudio();
+  // Firebase 준비 안됐으면 대기
+  if(!DEMO&&!_db){
+    s('entry-err','Firebase 연결 중...');
+    await initFB();
+    s('entry-err','');
+  }
+  document.getElementById('entry').style.display='none';
+  document.getElementById('main').style.display='flex';
+  s('room-lbl','Room: '+roomId+' | '+nickname);
+  s('lang-info',myFlag+' '+myLang.toUpperCase());
+  applyFont();
+  await fbSet('rooms/'+roomId+'/viewers/'+viewerId,{nickname,lang:myLang,flag:myFlag,ts:Date.now()});
+  joinTs=Date.now(); // 입장 시점 기록 - 이전 데이터 무시용
+  lastTs=joinTs;     // 입장 시점 이전 번역은 모두 무시
+  startBroadcastListener();
+  startChatListener();
+  startTtsApprovalListener();
+  showDeviceGuide();
+
+  document.addEventListener('visibilitychange',onVisibilityChange);
+  window.addEventListener('beforeunload',()=>fbRm('rooms/'+roomId+'/viewers/'+viewerId));
+};
+document.getElementById('nick-inp').addEventListener('keydown',e=>{if(e.key==='Enter')doEntry();});
+
+/* ── 번역 (viewer 자체 처리) ── */
+async function viewerTranslate(text,sourceLang){
+  // 소스 언어와 내 언어가 같으면 번역 불필요
+  if(sourceLang&&(sourceLang===myLang||sourceLang.split('-')[0]===myLang.split('-')[0]))return text;
+  try{
+    const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang||'auto'}&tl=${myLang}&dt=t&q=${encodeURIComponent(text)}`;
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),2000);
+    const r=await fetch(url,{signal:ctrl.signal});
+    clearTimeout(tid);
+    const d=await r.json();
+    return d[0].map(x=>x[0]).join('');
+  }catch(e){return text;}
+}
+
+/* ── 방송 수신 ── */
+let lastText='';
+function startBroadcastListener(){
+  fbOn('rooms/'+roomId+'/broadcast',(data)=>{
+    if(!data)return;
+    const live=data.isLive;
+    document.getElementById('dot').classList.toggle('live',live);
+    s('live-txt',live?'LIVE':(L.waiting||'대기 중'));
+    if(!live){showBanner('offline',L.offline||'방송이 종료되었습니다');return;}
+    document.getElementById('banner').className='';
+    if(!data.timestamp)return;
+    const ts=data.timestamp||0;
+    if(data.interim)return;
+    const skipTts=false;
+    const text=data.text||'';
+    if(!text)return;
+    // 중복 방지
+    if(ts===lastTs)return;
+    lastTs=ts;
+    const speaker=data.speaker;
+    const sourceLang=data.sourceLang||'auto';
+    // 시청자 기기에서 번역 후 표시
+    viewerTranslate(text,sourceLang).then(translated=>{
+      if(!translated)return;
+      lastText=translated;
+      // iOS Video PIP Canvas 업데이트
+      updatePipText(translated);
+      if(speaker==='A'||speaker==='B'){
+        document.getElementById('single-panel').style.display='none';
+        document.getElementById('a-panel').style.display='flex';
+        document.getElementById('b-panel').style.display='flex';
+        if(speaker==='A'){
+          document.getElementById('a-cap').textContent=translated;
+          if(ttsEnabled&&!skipTts)speakTts(translated,1.0,'A');
+        }else{
+          document.getElementById('b-cap').textContent=translated;
+          if(ttsEnabled&&!skipTts)speakTts(translated,0.85,'B');
         }
+      }else{
+        document.getElementById('single-panel').style.display='flex';
+        document.getElementById('a-panel').style.display='none';
+        document.getElementById('b-panel').style.display='none';
+        document.getElementById('single-cap').textContent=translated;
+        if(ttsEnabled&&!skipTts)speakTts(translated,1.0);
+      }
+    });
+  });
+}
 
-        // 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            app.hostName = getHostFromURL();
-            console.log('👁️ 호스트명:', app.hostName);
-        });
+/* ── 탭 전환 감지 ── */
+function onVisibilityChange(){
+  if(document.hidden){
+    isHidden=true;
+    // cancel 제거 - 백그라운드 TTS 유지
+  }else{
+    if(isHidden){
+      returnTs=Date.now();
+      isHidden=false;
+      showBanner('return',L.return_banner||'복귀하셨습니다. 이어서 번역됩니다.');
+      // 3초 후 returnTs 리셋 (복귀 후 새 번역부터 TTS 정상 재생)
+      setTimeout(()=>{returnTs=0;},3000);
+    }
+  }
+}
 
-        // 수신 시작
-        document.getElementById('startBtn').addEventListener('click', async () => {
-            app.isListening = true;
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            document.getElementById('translationText').innerHTML = '';
-            document.getElementById('statusText').textContent = '✅ 호스트 음성 대기 중...';
+/* ── TTS ── */
+let _bestVoice=null;
+let _voicesLoaded=false;
 
-            // 주기적으로 호스트 음성 데이터 요청
-            app.pollingInterval = setInterval(async () => {
-                if (app.isListening) {
-                    await fetchAndProcessAudio();
-                }
-            }, 500); // 500ms마다 확인
+function getBestVoice(langCode){
+  const voices=speechSynthesis.getVoices();
+  if(!voices.length)return null;
+  const lg=LANGS.find(l=>l.code===langCode);
+  const sl=lg?lg.sl:langCode;
+  const base=sl.split('-')[0].toLowerCase();
+  // 후보 목소리 필터링 (해당 언어)
+  const candidates=voices.filter(v=>{
+    const vl=v.lang.toLowerCase();
+    return vl===sl.toLowerCase()||vl.startsWith(base+'-')||vl.startsWith(base+'_');
+  });
+  if(!candidates.length)return null;
+  // 우선순위: Google > Microsoft > Apple > 기타
+  const priority=(v)=>{
+    const n=v.name.toLowerCase();
+    if(n.includes('google'))return 0;
+    if(n.includes('microsoft'))return 1;
+    if(n.includes('apple'))return 2;
+    if(v.localService)return 3;
+    return 4;
+  };
+  candidates.sort((a,b)=>priority(a)-priority(b));
+  return candidates[0]||null;
+}
 
-            console.log('👁️ 수신 시작');
-        });
+function loadVoices(){
+  if(_voicesLoaded)return;
+  const voices=speechSynthesis.getVoices();
+  if(voices.length){_voicesLoaded=true;_bestVoice=getBestVoice(myLang);}
+}
 
-        // 중지
-        document.getElementById('stopBtn').addEventListener('click', () => {
-            app.isListening = false;
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            
-            if (app.pollingInterval) {
-                clearInterval(app.pollingInterval);
-            }
+// 목소리 로드 이벤트 (Chrome은 비동기 로드)
+if(speechSynthesis.onvoiceschanged!==undefined){
+  speechSynthesis.onvoiceschanged=()=>{_voicesLoaded=false;loadVoices();};
+}
 
-            document.getElementById('statusText').textContent = '중지됨';
-            console.log('🛑 수신 중지');
-        });
+function speakTts(text,pitch,speaker){
+  if(!ttsEnabled||!text)return;
+  loadVoices();
+  const lg=LANGS.find(l=>l.code===myLang);
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lg?lg.sl:myLang;
+  // 최적 목소리 적용
+  const allVoices=speechSynthesis.getVoices();
+  const sl=(lg?lg.sl:myLang).toLowerCase();
+  const base=sl.split('-')[0];
+  const candidates=allVoices.filter(v=>{
+    const vl=v.lang.toLowerCase();
+    return vl===sl||vl.startsWith(base+'-')||vl.startsWith(base+'_');
+  });
+  const priority=(v)=>{
+    const n=v.name.toLowerCase();
+    if(n.includes('google'))return 0;
+    if(n.includes('microsoft'))return 1;
+    if(n.includes('apple'))return 2;
+    if(v.localService)return 3;
+    return 4;
+  };
+  candidates.sort((a,b)=>priority(a)-priority(b));
+  // 매칭 모드: speaker B는 두 번째 목소리 사용 (다른 사람 느낌)
+  let voice=null;
+  if(speaker==='B'&&candidates.length>=2){
+    voice=candidates[1]; // 두 번째 목소리
+  }else{
+    voice=candidates[0]||null;
+  }
+  if(voice)u.voice=voice;
+  // speaker B는 피치 낙게 해서 다른 사람체림 들림
+  const finalPitch=speaker==='B'?0.85:(pitch||1.0);
+  u.volume=vol;u.rate=rate;u.pitch=finalPitch;
+  speechSynthesis.cancel();
+  // iOS Safari: cancel() 직후 speak()가 무시되는 버그 회피
+  setTimeout(()=>speechSynthesis.speak(u),50);
+}
+document.getElementById('vol-sl').addEventListener('input',e=>{
+  vol=parseFloat(e.target.value);
+  ttsEnabled=vol>0;
+  document.getElementById('btn-mute').textContent=vol===0?'🔇':'🔊';
+  if(!ttsEnabled)speechSynthesis.cancel();
+});
+document.getElementById('rate-sl').addEventListener('input',e=>{rate=parseFloat(e.target.value);});
+let isMuted=false;
+window.toggleMute=function(){
+  isMuted=!isMuted;
+  ttsEnabled=!isMuted;
+  vol=isMuted?0:1;
+  document.getElementById('vol-sl').value=vol;
+  document.getElementById('btn-mute').textContent=isMuted?'🔇':'🔊';
+  if(isMuted)speechSynthesis.cancel();
+};
 
-        // 호스트 음성 데이터 받기
-        async function fetchAndProcessAudio() {
-            try {
-                const response = await fetch(`/api/viewer/stream/${app.hostName}`);
-                const data = await response.json();
 
-                if (data.status === 'ok' && data.audioData) {
-                    // 새로운 음성 데이터인지 확인
-                    if (data.timestamp > app.lastTimestamp) {
-                        app.lastTimestamp = data.timestamp;
-                        
-                        // base64 데이터를 Blob으로 변환
-                        const audioBlob = base64ToBlob(data.audioData, 'audio/webm');
-                        
-                        // 음성 인식
-                        await recognizeAudio(audioBlob);
-                    }
-                } else {
-                    document.getElementById('statusText').textContent = '⏳ 호스트 음성 대기 중...';
-                }
-            } catch (error) {
-                console.error('음성 데이터 수신 오류:', error);
-                document.getElementById('statusText').textContent = '❌ 오류';
-            }
-        }
+/* ── 채팅 ── */
+let chatKeys=new Set();
+let ttsGranted=false;
 
-        // Base64를 Blob으로 변환
-        function base64ToBlob(base64, mimeType) {
-            const binaryString = atob(base64);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return new Blob([bytes], { type: mimeType });
-        }
+window.sendChat=async function(){
+  const inp=document.getElementById('chat-inp');
+  const text=inp.value.trim();
+  if(!text||!roomId)return;
+  inp.value='';
+  await fbPush('rooms/'+roomId+'/chat',{
+    viewerId,nickname,flag:myFlag,lang:myLang,
+    text,timestamp:Date.now()
+  });
+};
 
-        // 음성 인식
-        async function recognizeAudio(audioBlob) {
-            try {
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    const audioData = reader.result.split(',')[1];
-                    
-                    // Web Speech API 사용
-                    const context = new (window.AudioContext || window.webkitAudioContext)();
-                    const response = await fetch(URL.createObjectURL(audioBlob));
-                    const arrayBuffer = await response.arrayBuffer();
-                    const audioBuffer = await context.decodeAudioData(arrayBuffer);
-                    
-                    // 간단한 방법: 음성 데이터를 구글 STT로 전송
-                    await sendToSpeechRecognition(audioBlob);
-                };
-                reader.readAsDataURL(audioBlob);
-            } catch (error) {
-                console.error('음성 인식 오류:', error);
-            }
-        }
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('chat-inp');
+  if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+});
 
-        // 음성을 텍스트로 변환
-        async function sendToSpeechRecognition(audioBlob) {
-            try {
-                // Web Speech API 사용 (간단함)
-                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.lang = 'ko-KR';
-                recognition.continuous = false;
+function startChatListener(){
+  fbOn('rooms/'+roomId+'/chat',(data)=>{
+    if(!data)return;
+    for(const[k,msg]of Object.entries(data)){
+      if(chatKeys.has(k))continue;chatKeys.add(k);
+      addViewerChatMsg(k,msg);
+    }
+  });
+}
 
-                recognition.onresult = async (event) => {
-                    let transcript = '';
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        transcript += event.results[i][0].transcript;
-                    }
+async function addViewerChatMsg(key,msg){
+  // 내 언어로 번역
+  let text=msg.text||'';
+  if(msg.lang&&msg.lang!==myLang){
+    text=await viewerTranslate(msg.text,msg.lang);
+  }
+  const el=document.createElement('div');
+  el.className='vcmsg'+(msg.viewerId===viewerId?' mine':'');
+  el.textContent=`${msg.flag||'🌐'} ${msg.nickname||'?'}: ${text}`;
+  const list=document.getElementById('viewer-chat-list');
+  if(list){
+    list.appendChild(el);
+    list.scrollTop=list.scrollHeight;
+    while(list.children.length>30)list.removeChild(list.firstChild);
+  }
+}
 
-                    if (transcript) {
-                        console.log('🎤 인식된 음성:', transcript);
-                        document.getElementById('statusText').textContent = '🌐 번역 중...';
-                        
-                        // 번역
-                        await translateAndDisplay(transcript);
-                    }
-                };
+function startTtsApprovalListener(){
+  // ttsGranted 상태 감시
+  fbOn('rooms/'+roomId+'/viewers/'+viewerId+'/ttsGranted',(data)=>{
+    ttsGranted=!!data;
+  });
+  // 승인 메시지 감시
+  fbOn('rooms/'+roomId+'/viewers/'+viewerId+'/ttsApprovalMsg',(data)=>{
+    if(!data||!data.msg)return;
+    const banner=document.getElementById('tts-approval');
+    if(banner){
+      banner.textContent='✅ '+data.msg;
+      banner.classList.add('show');
+      setTimeout(()=>banner.classList.remove('show'),5000);
+    }
+  });
+}
 
-                recognition.onerror = (event) => {
-                    console.log('음성 인식 오류:', event.error);
-                };
+/* ── 기기별 안내 ── */
+function showDeviceGuide(){
+  const ua=navigator.userAgent;
+  const isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
+  const isAndroid=/Android/.test(ua);
+  const isIPad=/iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 
-                // 오디오 재생 및 인식 (브라우저 제약으로 직접 인식 불가)
-                // 대신 호스트의 텍스트 데이터를 직접 받는 방식 필요
-                // 현재는 간단히 오디오 URL을 출력
-                document.getElementById('statusText').textContent = '✅ 음성 수신됨';
-            } catch (error) {
-                console.error('STT 오류:', error);
-            }
-        }
+  const GUIDE={
+    ios:'📱 iPhone: 틱톡을 PIP(작은 창)으로 줄이고 이 화면을 전체화면으로 보세요. 번역 TTS가 끊기지 않아요 😊',
+    android:'📱 Android: 화면 분할 — 위쪽 틱톡, 아래쪽 이 화면. 채팅·선물·좋아요 동시에 가능해요 😊',
+  };
 
-        // 번역
-        async function translateAndDisplay(text) {
-            try {
-                const response = await fetch('/api/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: text,
-                        targetLang: 'ko'
-                    })
-                });
+  let guideType=null;
+  if(isIOS&&!isIPad)guideType='ios';
+  else if(isAndroid)guideType='android';
+  if(!guideType)return;
 
-                const data = await response.json();
-                const translation = data.translation;
+  const msg=GUIDE[guideType];
+  const list=document.getElementById('viewer-chat-list');
+  if(!list)return;
+  // 기존 안내 메시지 제거 후 새로 추가
+  const existing=list.querySelector('.guide-msg');
+  if(existing)existing.remove();
+  const el=document.createElement('div');
+  el.className='guide-msg';
+  const color=guideType==='ios'?'rgba(255,149,0,':'rgba(46,204,113,';
+  const textColor=guideType==='ios'?'#ff9500':'#2ecc71';
+  el.style.cssText=`background:${color}0.1);border:1px solid ${color}0.3);border-radius:8px;padding:6px 8px;font-size:11px;line-height:1.5;color:${textColor};margin-bottom:4px`;
+  el.textContent=msg;
+  list.insertBefore(el,list.firstChild);
+}
 
-                // 화면에 표시
-                const translationBox = document.getElementById('translationText');
-                if (translationBox.textContent === '호스트의 음성을 기다리는 중...') {
-                    translationBox.innerHTML = `<div>${translation}</div>`;
-                } else {
-                    translationBox.innerHTML += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(102, 126, 234, 0.1);">${translation}</div>`;
-                }
+/* ── Document PIP (Android Chrome) ── */
+async function startDocumentPip(){
+  try{
+    const pipWin=await window.documentPictureInPicture.requestWindow({width:320,height:480});
+    const style=pipWin.document.createElement('style');
+    style.textContent=`:root{--bg:#0a0a0f;--text:#e8e8f0;--blue:#4f8ef7;--yellow:#f7c94f;--red:#e74c3c;--fs:${fontSize}px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:-apple-system,sans-serif;padding:8px;height:100vh;display:flex;flex-direction:column;gap:6px;overflow:hidden}.cap{font-size:var(--fs);line-height:1.5;word-break:break-word;padding:10px;border-radius:8px;background:#18181f;flex:1;overflow-y:auto}.cap.single{border-left:3px solid var(--blue)}.cap.a{border-left:3px solid var(--blue)}.cap.b{border-left:3px solid var(--yellow)}.lbl{font-size:10px;font-weight:700;margin-bottom:3px;color:var(--blue)}.ctrls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0;border-top:1px solid #252530;margin-top:auto;flex-shrink:0}.btn{padding:4px 8px;border-radius:6px;border:1px solid #2e2e3e;background:#18181f;color:#e8e8f0;font-size:11px;cursor:pointer}.tog{width:32px;height:18px;position:relative;display:inline-block}.tog input{opacity:0;width:0;height:0;position:absolute}.tog-sl{position:absolute;inset:0;background:#2e2e3e;border-radius:18px;transition:.2s}.tog-sl:before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}.tog input:checked+.tog-sl{background:var(--blue)}.tog input:checked+.tog-sl:before{transform:translateX(14px)}input[type=range]{width:50px;height:4px;accent-color:var(--blue)}.lbl2{font-size:10px;color:#8888a0}`;
+    pipWin.document.head.appendChild(style);
+    pipWin.document.body.innerHTML=`
+      <div class="lbl" id="plbl">${L.single||'실시간 번역'}</div>
+      <div class="cap single" id="pcap"></div>
+      <div class="ctrls">
+        <label class="tog"><input type="checkbox" id="ptts" ${ttsEnabled?'checked':''}><span class="tog-sl"></span></label>
+        <span class="lbl2">TTS</span>
+        <span class="lbl2">볼륨</span>
+        <input type="range" id="pvol" min="0" max="1" step="0.1" value="${vol}">
+        <span class="lbl2">속도</span>
+        <input type="range" id="prate" min="0.5" max="2" step="0.1" value="${rate}">
+        <button class="btn" onclick="this.closest('body').dispatchEvent(new CustomEvent('fs',{detail:-2}))">A-</button>
+        <button class="btn" onclick="this.closest('body').dispatchEvent(new CustomEvent('fs',{detail:2}))">A+</button>
+      </div>`;
+    // 컨트롤 동기화
+    pipWin.document.getElementById('ptts').addEventListener('change',e=>{ttsEnabled=e.target.checked;document.getElementById('tog-tts').checked=ttsEnabled;if(!ttsEnabled)speechSynthesis.cancel();});
+    pipWin.document.getElementById('pvol').addEventListener('input',e=>{vol=parseFloat(e.target.value);document.getElementById('vol-sl').value=vol;});
+    pipWin.document.getElementById('prate').addEventListener('input',e=>{rate=parseFloat(e.target.value);document.getElementById('rate-sl').value=rate;});
+    pipWin.document.body.addEventListener('fs',e=>{window.chgFont(e.detail);pipWin.document.body.style.setProperty('--fs',fontSize+'px');});
+    // 자막 동기화
+    const syncPip=()=>{
+      const pcap=pipWin.document.getElementById('pcap');
+      if(!pcap)return;
+      const txt=document.getElementById('single-cap').textContent||document.getElementById('a-cap').textContent||document.getElementById('b-cap').textContent;
+      pcap.textContent=txt;
+    };
+    const obs=new MutationObserver(syncPip);
+    ['a-cap','b-cap','single-cap'].forEach(id=>obs.observe(document.getElementById(id),{childList:true,characterData:true,subtree:true}));
+    // PIP 사락 시 observer 정리 (메모리 누수 방지)
+    pipWin.addEventListener('pagehide',()=>obs.disconnect());
+    showToast('PIP 모드 시작됨');
+  }catch(e){showToast('PIP 시작 실패: '+e.message);}
+}
 
-                document.getElementById('statusText').textContent = '✅ 번역됨';
-                console.log('✅ 번역:', translation);
+/* ── iOS Video PIP (Canvas → Video) ── */
+let _pipCanvas=null,_pipCtx=null,_pipVideo=null,_pipStream=null,_pipActive=false;
+let _pipText='';
 
-                // TTS 재생
-                speakTranslation(translation);
-            } catch (error) {
-                console.error('번역 오류:', error);
-            }
-        }
+function initPipCanvas(){
+  if(_pipCanvas)return;
+  _pipCanvas=document.createElement('canvas');
+  _pipCanvas.width=480;_pipCanvas.height=200;
+  _pipCtx=_pipCanvas.getContext('2d');
+  _pipStream=_pipCanvas.captureStream(10);
+  _pipVideo=document.createElement('video');
+  _pipVideo.srcObject=_pipStream;
+  _pipVideo.muted=true;
+  _pipVideo.playsInline=false; // iOS PIP 요청에 필요
+  _pipVideo.setAttribute('playsinline','false');
+  _pipVideo.style.position='fixed';
+  _pipVideo.style.opacity='0';
+  _pipVideo.style.pointerEvents='none';
+  _pipVideo.style.width='1px';
+  _pipVideo.style.height='1px';
+  _pipVideo.style.top='-9999px';
+  document.body.appendChild(_pipVideo);
+}
 
-        // TTS
-        function speakTranslation(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ko-KR';
-            utterance.rate = 0.9;
-            speechSynthesis.speak(utterance);
-        }
-    </script>
+function drawPipFrame(){
+  if(!_pipCtx||!_pipActive)return;
+  const W=_pipCanvas.width,H=_pipCanvas.height;
+  const fs=Math.min(fontSize,36);
+  _pipCtx.clearRect(0,0,W,H);
+  // 배경
+  _pipCtx.fillStyle='rgba(10,10,15,0.92)';
+  _pipCtx.roundRect(0,0,W,H,16);
+  _pipCtx.fill();
+  // 자막 텍스트
+  _pipCtx.fillStyle='#e8e8f0';
+  _pipCtx.font=`600 ${fs}px -apple-system, sans-serif`;
+  _pipCtx.textAlign='center';
+  _pipCtx.textBaseline='middle';
+  // 잡 텍스트 줄바꽔
+  const words=_pipText.split(' ');
+  const maxW=W-40;
+  const lines=[];
+  let cur='';
+  for(const w of words){
+    const test=cur?cur+' '+w:w;
+    if(_pipCtx.measureText(test).width>maxW&&cur){lines.push(cur);cur=w;}else{cur=test;}
+  }
+  if(cur)lines.push(cur);
+  const lineH=fs*1.5;
+  const totalH=lines.length*lineH;
+  const startY=(H-totalH)/2+lineH/2;
+  lines.forEach((line,i)=>_pipCtx.fillText(line,W/2,startY+i*lineH));
+  requestAnimationFrame(drawPipFrame);
+}
+
+async function startIosPip(){
+  initPipCanvas();
+  _pipActive=true;
+  drawPipFrame();
+  try{
+    await _pipVideo.play();
+    if(_pipVideo.requestPictureInPicture){
+      await _pipVideo.requestPictureInPicture();
+      showToast('화면 아래 PIP 버튼을 눌러주세요');
+    }else{
+      showToast('PIP 미지원 브라우저');
+    }
+  }catch(e){
+    showToast('화면 아래 PIP 버튼을 눌러주세요 (비디오 재생 후)');
+  }
+  _pipVideo.addEventListener('leavepictureinpicture',()=>{_pipActive=false;});
+}
+
+// 자막 업데이트 훅 (PIP Canvas에 반영)
+function updatePipText(text){
+  _pipText=text;
+}
+
+window.startPip=async function(){
+  if('documentPictureInPicture' in window){
+    await startDocumentPip();
+  }else{
+    await startIosPip();
+  }
+};
+
+/* ── 글자 크기 ── */
+let chatFontSize=parseInt(localStorage.getItem('jmc_cfs_v')||'13');
+window.chgFont=function(d){fontSize=Math.max(14,Math.min(52,fontSize+d));localStorage.setItem('jmc_fs_v',fontSize);applyFont();};
+window.chgChatFont=function(d){chatFontSize=Math.max(10,Math.min(22,chatFontSize+d));localStorage.setItem('jmc_cfs_v',chatFontSize);applyChatFont();};
+function applyFont(){document.documentElement.style.setProperty('--fs',fontSize+'px');document.getElementById('fval').textContent=fontSize;}
+function applyChatFont(){document.documentElement.style.setProperty('--chat-fs',chatFontSize+'px');const el=document.getElementById('chat-fval');if(el)el.textContent=chatFontSize;}
+
+function escHtml(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function getRoomId(){const p=new URLSearchParams(location.search);return p.get('room')||'demoroom';}
+
+/* ── 초기화 ── */
+(async()=>{
+  roomId=getRoomId();
+  document.getElementById('entry-room').textContent='Room: '+roomId;
+  // 입장 화면 기기별 안내
+  (function(){
+    const ua=navigator.userAgent;
+    const isIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
+    const isAndroid=/Android/.test(ua);
+    const isIPad=/iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    const el=document.getElementById('entry-device-guide');
+    if(!el)return;
+    if(isIOS&&!isIPad){
+      el.style.cssText='margin:8px 0;padding:8px 10px;border-radius:8px;font-size:11px;line-height:1.5;background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.3);color:#ff9500;display:block';
+      el.textContent='📱 iPhone: 틱톡을 PIP(작은 창)으로 줄이고 이 화면을 전체화면으로 보세요';
+    }else if(isAndroid){
+      el.style.cssText='margin:8px 0;padding:8px 10px;border-radius:8px;font-size:11px;line-height:1.5;background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);color:#2ecc71;display:block';
+      el.textContent='📱 Android: 화면 분할 — 위쪽 틱톡, 아래쪽 이 화면';
+    }
+  })();
+  await initFB();
+  await detectLang();
+  applyFont();
+  applyChatFont();
+  // 번역 API 워밍업 (첫 번역 지연 방지)
+  fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=test').catch(()=>{});
+})();
+})();
+</script>
 </body>
 </html>
