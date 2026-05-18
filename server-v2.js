@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const fileUpload = require('express-fileupload');
-const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,7 +16,7 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(fileUpload());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_KEY = process.env.ADMIN_KEY || 'admin_key_default';
@@ -141,24 +140,22 @@ app.post('/api/register-tiktok-session', (req, res) => {
     sampleRecorded: false
   };
   
-  // 10분 강제 종료 타이머 설정
   hostSessionTimers[sessionId] = setTimeout(() => {
     console.log(`⏱️ 세션 ${sessionId}: 10분 강제 종료`);
     const session = tiktokSessions[sessionId];
     if (session) {
       session.isActive = false;
-      // 샘플 삭제
       delete hostVoiceSamples[session.hostUsername];
       console.log(`🗑️ 호스트 샘플 삭제됨: ${session.hostUsername}`);
     }
-  }, 600000);  // 10분
+  }, 600000);
   
   console.log(`✅ 세션 등록: ${sessionId}`);
   
   res.json({ 
     sessionId: sessionId,
     registeredIp: clientIp,
-    message: 'TikTok 세션 등록됨 (10분 강제 종료 설정)'
+    message: 'TikTok 세션 등록됨'
   });
 });
 
@@ -187,7 +184,6 @@ app.post('/api/verify-host-voice', async (req, res) => {
   }
   
   try {
-    // Python으로 음성 비교
     const similarity = await compareVoicesOnServer(
       audioBlob.data,
       hostSample
@@ -198,7 +194,6 @@ app.post('/api/verify-host-voice', async (req, res) => {
     const isHostVoice = similarity > 0.75;
     
     if (isHostVoice) {
-      // 호스트 음성 감지 → 10분 타이머 리셋
       if (hostSessionTimers[sessionId]) {
         clearTimeout(hostSessionTimers[sessionId]);
       }
@@ -208,7 +203,6 @@ app.post('/api/verify-host-voice', async (req, res) => {
         const session = tiktokSessions[sessionId];
         if (session) {
           session.isActive = false;
-          // 샘플 삭제
           delete hostVoiceSamples[session.hostUsername];
           console.log(`🗑️ 호스트 샘플 삭제됨: ${session.hostUsername}`);
         }
@@ -230,7 +224,6 @@ app.post('/api/verify-host-voice', async (req, res) => {
 
 // ============ TRANSLATION API ============
 
-// 번역 API
 app.post('/api/translate', (req, res) => {
   const { text, targetLang } = req.body;
   const sessionId = req.headers['x-session-id'];
@@ -240,7 +233,6 @@ app.post('/api/translate', (req, res) => {
     return res.status(401).json({ error: '세션 비활성' });
   }
   
-  // MyMemory API 사용 (무료)
   const sourceText = encodeURIComponent(text);
   const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${sourceText}&langpair=ko|${targetLang}`;
   
@@ -258,19 +250,13 @@ app.post('/api/translate', (req, res) => {
 
 // ============ HELPER FUNCTIONS ============
 
-// 간단한 음성 유사도 계산 (Node.js)
 async function compareVoicesOnServer(currentAudio, hostSample) {
   try {
-    // 간단한 바이트 비교 (배경음 제거 없이)
-    // 호스트 샘플과 현재 오디오의 길이와 내용 비교
-    
     const currentLength = currentAudio.length;
     const hostLength = hostSample.length;
     
-    // 길이 유사도
     const lengthSimilarity = 1 - Math.abs(currentLength - hostLength) / Math.max(currentLength, hostLength);
     
-    // 바이트 유사도 (샘플링)
     let byteSimilarity = 0;
     const sampleSize = Math.min(1000, currentLength, hostLength);
     let matches = 0;
@@ -279,7 +265,6 @@ async function compareVoicesOnServer(currentAudio, hostSample) {
       const currentByte = currentAudio[i] || 0;
       const hostByte = hostSample[i] || 0;
       
-      // 바이트 값이 비슷하면 유사도 증가
       if (Math.abs(currentByte - hostByte) < 50) {
         matches++;
       }
@@ -287,10 +272,7 @@ async function compareVoicesOnServer(currentAudio, hostSample) {
     
     byteSimilarity = sampleSize > 0 ? matches / sampleSize : 0;
     
-    // 전체 유사도 계산
     const similarity = (lengthSimilarity * 0.3) + (byteSimilarity * 0.7);
-    
-    console.log(`🔊 유사도: ${similarity.toFixed(2)}`);
     
     return similarity;
   } catch (error) {
@@ -312,15 +294,11 @@ app.get('/api/health', (req, res) => {
 // ============ ROOT ROUTE ============
 
 app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'index-final.html');
-  console.log('Serving:', filePath);
-  res.sendFile(filePath);
+  res.sendFile(path.join(__dirname, 'public', 'index-final.html'));
 });
 
-// 모든 다른 경로도 index.html 제공
-app.get('*', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'index-final.html');
-  res.sendFile(filePath);
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index-final.html'));
 });
 
 // ============ START SERVER ============
