@@ -1,0 +1,32 @@
+{
+  "name": "jmc-global-live-translation",
+  "version": "1.0.0",
+  "description": "Real-time TikTok live translation with host voice verification",
+  "main": "server-v2.js",
+  "scripts": {
+    "start": "node server-v2.js",
+    "dev": "nodemon server-v2.js"
+  },
+  "keywords": [
+    "tiktok",
+    "live",
+    "translation",
+    "voice",
+    "verification",
+    "realtime"
+  ],
+  "author": "JMC",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express-fileupload": "^1.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

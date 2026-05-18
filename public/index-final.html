@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JMC Global Live Translation">
+  <title>🌍 JMC Global Live Translation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      color: #e0e0e0;
+    }
+
+    .header {
+      padding: max(8px, env(safe-area-inset-top)) 16px 8px;
+      background: rgba(10, 14, 39, 0.95);
+      border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .host-indicator {
+      font-size: 12px;
+      color: #4cff4c;
+      padding: 4px 8px;
+      background: rgba(76, 255, 76, 0.1);
+      border-radius: 4px;
+      border: 1px solid rgba(76, 255, 76, 0.3);
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:active {
+      background: rgba(102, 126, 234, 0.2);
+      transform: scale(0.95);
+    }
+
+    .contact-section {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .contact-link {
+      background: none;
+      border: none;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .contact-link:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #764ba2;
+    }
+
+    .contact-link:active {
+      transform: scale(0.95);
+    }
+
+    .divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .status-bar {
+      padding: 12px 16px;
+      background: rgba(102, 126, 234, 0.05);
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #666;
+    }
+
+    .status-indicator.active {
+      background: #4cff4c;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    .translation-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .translation-label {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .translation-text {
+      flex: 1;
+      font-size: 16px;
+      line-height: 1.8;
+      color: #fff;
+      word-break: break-word;
+      display: flex;
+      align-items: flex-start;
+      min-height: 60px;
+      position: relative;
+    }
+
+    .text-size-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .text-size-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .text-size-btn:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .pip-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    .pip-button:active {
+      transform: scale(0.9);
+    }
+
+    .pip-button.hidden {
+      display: none;
+    }
+
+    .mode-selector {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: rgba(10, 14, 39, 0.98);
+      border: 2px solid #667eea;
+      border-radius: 12px;
+      padding: 12px;
+      z-index: 99;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mode-selector.show {
+      display: flex;
+    }
+
+    .mode-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #667eea;
+      text-align: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: rgba(102, 126, 234, 0.05);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 12px;
+      color: #e0e0e0;
+    }
+
+    .mode-option:hover {
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .mode-radio {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #667eea;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mode-option.active .mode-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #667eea;
+      border-radius: 50%;
+    }
+
+    .mode-option.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: #667eea;
+    }
+
+    .pip-window {
+      position: fixed;
+      bottom: 60px;
+      right: 20px;
+      width: 360px;
+      max-height: 250px;
+      background: rgba(10, 14, 39, 0.98);
+      border: 2px solid #667eea;
+      border-radius: 12px;
+      padding: 12px;
+      z-index: 999;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      backdrop-filter: blur(10px);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pip-window.show {
+      display: flex;
+    }
+
+    .pip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .pip-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .pip-close-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: #667eea;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .pip-content {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e0e0e0;
+      word-break: break-word;
+      padding-right: 4px;
+    }
+
+    .pip-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .control-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .slider-mini {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .slider-mini label {
+      font-size: 9px;
+      color: #999;
+      min-width: 25px;
+    }
+
+    .slider-mini input {
+      flex: 1;
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .slider-mini input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+    }
+
+    .slider-mini span {
+      font-size: 9px;
+      color: #667eea;
+      min-width: 20px;
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .tts-toggle-mini {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9px;
+      color: #e0e0e0;
+      flex: 1;
+    }
+
+    .tts-toggle-mini label {
+      position: relative;
+      width: 32px;
+      height: 18px;
+    }
+
+    .tts-toggle-mini input {
+      display: none;
+    }
+
+    .tts-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #555;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .tts-toggle-mini input:checked + .tts-slider {
+      background: #667eea;
+    }
+
+    .tts-slider::after {
+      content: '';
+      position: absolute;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .tts-toggle-mini input:checked + .tts-slider::after {
+      left: 16px;
+    }
+
+    .control-panel {
+      padding: 16px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      background: rgba(10, 14, 39, 0.95);
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-row.full {
+      flex-direction: column;
+    }
+
+    .select-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .select-label {
+      font-size: 11px;
+      color: #999;
+      font-weight: 600;
+    }
+
+    select {
+      padding: 10px 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    select option {
+      background: #1a1f3a;
+      color: #fff;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+
+    .btn-danger {
+      background: rgba(220, 53, 69, 0.1);
+      color: #ff6b6b;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(102, 126, 234, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .slider-label {
+      font-size: 10px;
+      color: #999;
+      min-width: 30px;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      border: none;
+    }
+
+    .slider-value {
+      font-size: 10px;
+      color: #667eea;
+      min-width: 25px;
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(102, 126, 234, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: #e0e0e0;
+      flex: 1;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #555;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: #667eea;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider::after {
+      left: 25px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1f3a;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 90%;
+      max-height: 80%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 16px;
+    }
+
+    .modal-text {
+      color: #aaa;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .modal-section {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .modal-section:last-child {
+      border-bottom: none;
+    }
+
+    .system-guide {
+      background: rgba(102, 126, 234, 0.1);
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .error-message {
+      padding: 12px;
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #ff6b6b;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 480px) {
+      .header {
+        padding: max(6px, env(safe-area-inset-top)) 12px 6px;
+      }
+
+      .main-container {
+        padding: 12px;
+      }
+
+      .control-panel {
+        padding: 12px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+
+      .pip-window {
+        width: calc(100vw - 40px);
+        max-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">
+      <span>🌍</span>
+      <span id="app-title">JMC Global Live Translation</span>
+      <span class="host-indicator" id="host-indicator" style="display: none;">
+        ✓ <span id="host-name"></span>
+      </span>
+    </div>
+    <div class="header-controls">
+      <div class="contact-section">
+        <button class="contact-link" onclick="window.open('https://www.tiktok.com/@jemcymusic', '_blank')">
+          🎵 TikTok
+        </button>
+        <div class="divider"></div>
+        <button class="contact-link" onclick="window.open('https://open.kakao.com/o/sVLHFnui', '_blank')">
+          💬 Kakao
+        </button>
+      </div>
+      <button class="icon-btn" id="info-btn" title="정보">ℹ️</button>
+      <button class="icon-btn" id="settings-btn" title="설정">⚙️</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item">
+      <span class="status-indicator" id="mic-indicator"></span>
+      <span id="status-text">대기 중...</span>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div id="auth-error" class="error-message" style="display: none;">
+      ❌ <span id="error-text"></span>
+    </div>
+    <div class="translation-box">
+      <div class="translation-label" id="translation-label">🌐 번역</div>
+      <div class="translation-text" id="translation-text">
+        <span id="status-waiting">시작을 기다리는 중...</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="pip-button" id="pip-btn" title="PIP 모드"></button>
+
+  <div class="mode-selector" id="mode-selector">
+    <div class="mode-title">📱 화면 모드</div>
+    <div class="mode-option active" data-mode="pip" onclick="selectMode('pip')">
+      <div class="mode-radio"></div>
+      <span>📺 PIP 모드</span>
+    </div>
+    <div class="mode-option" data-mode="dual" onclick="selectMode('dual')">
+      <div class="mode-radio"></div>
+      <span>🔀 듀얼 화면</span>
+    </div>
+  </div>
+
+  <div class="pip-window" id="pip-window">
+    <div class="pip-header">
+      <div class="pip-title" id="pip-title">🌐 번역</div>
+      <button class="pip-close-btn" id="pip-close-btn">✕</button>
+    </div>
+    <div class="pip-content" id="pip-content">
+      시작을 기다리는 중...
+    </div>
+    <div class="pip-controls">
+      <div class="control-row">
+        <div class="tts-toggle-mini">
+          <label>
+            <input type="checkbox" id="pip-tts-toggle" checked>
+            <span class="tts-slider"></span>
+          </label>
+          <span>TTS</span>
+        </div>
+        <div class="slider-mini">
+          <label>음량</label>
+          <input type="range" id="pip-volume" min="0" max="100" value="80">
+          <span id="pip-volume-value">80%</span>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="slider-mini">
+          <label>속도</label>
+          <input type="range" id="pip-speed" min="0.5" max="2" step="0.1" value="0.9">
+          <span id="pip-speed-value">0.9x</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <div class="control-row full">
+      <div class="select-group">
+        <label class="select-label" id="lang-label">언어</label>
+        <select id="language-select">
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="pt">🇧🇷 Português</option>
+          <option value="ru">🇷🇺 Русский</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="tr">🇹🇷 Türkçe</option>
+          <option value="th">🇹🇭 ไทย</option>
+          <option value="id">🇮🇩 Bahasa Indonesia</option>
+          <option value="fil">🇵🇭 Filipino</option>
+          <option value="ms">🇲🇾 Bahasa Melayu</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <button class="btn btn-primary" id="start-btn">
+        <span id="start-btn-text">🎙️ 시작</span>
+      </button>
+      <button class="btn btn-danger" id="stop-btn" style="display: none;">
+        ⏹️ <span id="stop-btn-text">중지</span>
+      </button>
+    </div>
+
+    <div class="toggle-group">
+      <span class="toggle-label" id="tts-label">🔊 TTS</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="tts-toggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="slider-group">
+      <span class="slider-label" id="volume-label">음량</span>
+      <input type="range" id="volume-slider" min="0" max="100" value="80">
+      <span class="slider-value" id="volume-value">80%</span>
+    </div>
+
+    <div class="slider-group">
+      <span class="slider-label" id="speed-label">속도</span>
+      <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="0.9">
+      <span class="slider-value" id="speed-value">0.9x</span>
+    </div>
+  </div>
+
+  <div class="modal" id="info-modal">
+    <div class="modal-content">
+      <div class="modal-title" id="modal-title-info">📱 Live Translator</div>
+      
+      <div class="modal-section">
+        <div class="modal-text" id="info-description">
+          호스트의 실시간 음성을 감지하여 선택한 언어로 번역합니다.
+        </div>
+      </div>
+
+      <div class="modal-section" id="os-guide">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;" id="os-title">📱 사용 방법</div>
+        <div class="system-guide" id="os-guide-content"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;">🔀 듀얼 화면 모드</div>
+        <div class="system-guide">
+          📱 <strong>Android</strong>: 우측 하단 PIP 버튼 → "듀얼 화면" 선택 → TikTok과 번역이 나란히 표시<br><br>
+          📱 <strong>iPad</strong>: 우측 하단 PIP 버튼 → "듀얼 화면" 선택 → Split View로 TikTok(좌측) + 번역(우측) 동시 표시
+        </div>
+      </div>
+
+      <div class="modal-section" id="os-guide">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;" id="os-title">📱 사용 방법</div>
+        <div class="system-guide" id="os-guide-content"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 8px;" id="supported-features-label">✨ 지원 기능</div>
+        <div class="modal-text" id="supported-features">
+          • 실시간 음성 인식 (한국어)<br>
+          • 14개 언어 번역<br>
+          • TTS 음성 재생 (On/Off)<br>
+          • PIP 모드 (Android)<br>
+          • 음량 및 속도 조절
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('info-modal')" id="close-info-btn">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settings-modal">
+    <div class="modal-content">
+      <div class="modal-title" id="settings-title">⚙️ 설정</div>
+      
+      <div class="modal-section">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;" id="mic-section-label">🎤 마이크</div>
+        <button class="btn btn-primary" style="width: 100%; background: rgba(102, 126, 234, 0.1); color: #667eea; border: 1px solid rgba(102, 126, 234, 0.3);" onclick="requestMicrophonePermission()" id="mic-btn">
+          마이크 권한 확인
+        </button>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;" id="recognition-lang-label">음성 언어</div>
+        <select id="recognition-lang" style="width: 100%;">
+          <option value="ko-KR">한국어</option>
+          <option value="en-US">English</option>
+          <option value="ja-JP">日本語</option>
+          <option value="zh-CN">中文</option>
+        </select>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-text" style="font-weight: 600; margin-bottom: 12px;" id="recognition-speed-label">음성 인식 속도</div>
+        <select id="recognition-speed" style="width: 100%;">
+          <option value="slow" id="speed-slow">느림 (정확도 높음)</option>
+          <option value="normal" selected id="speed-normal">보통</option>
+          <option value="fast" id="speed-fast">빠름 (반응성 높음)</option>
+        </select>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('settings-modal')" id="settings-close-btn">완료</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const i18n = {
+      'en': {
+        'app-title': 'Live Translator',
+        'status-waiting': 'Waiting to start...',
+        'status-listening': '🎙️ Listening...',
+        'status-stopped': '⏹️ Stopped',
+        'start-btn-text': '🎙️ Start',
+        'stop-btn-text': 'Stop',
+        'lang-label': 'Language',
+        'tts-label': '🔊 TTS',
+        'volume-label': 'Volume',
+        'speed-label': 'Speed',
+        'modal-title-info': '📱 Live Translator',
+        'info-description': 'Real-time voice translation of the host\'s speech.',
+        'os-title': '📱 Usage',
+        'os-guide-android': '🤖 Android: Tap PIP button → Tiktok will maximize → Translation shows as PIP overlay',
+        'os-guide-ios': '🍎 iOS: Keep Tiktok in PIP mode → Maximize this app → Translation works in background',
+        'supported-features-label': '✨ Features',
+        'supported-features': '• Real-time voice recognition (Korean)<br>• 14 language translation<br>• TTS voice playback (On/Off)<br>• PIP mode (Android)<br>• Volume & speed adjustment',
+        'close-info-btn': 'Close',
+        'mic-section-label': '🎤 Microphone',
+        'mic-btn': 'Check microphone permission',
+        'recognition-lang-label': 'Recognition language',
+        'recognition-speed-label': 'Recognition speed',
+        'speed-slow': 'Slow (High accuracy)',
+        'speed-normal': 'Normal',
+        'speed-fast': 'Fast (High responsiveness)',
+        'settings-title': '⚙️ Settings',
+        'settings-close-btn': 'Done',
+        'translation-label-prefix': '🌐 Translation',
+        'pip-title-prefix': '🌐 Translation',
+        'contact-tiktok': '🎵 TikTok',
+        'contact-kakao': '💬 Kakao'
+      },
+      'ja': {
+        'app-title': 'ライブ翻訳',
+        'status-waiting': '開始待機中...',
+        'status-listening': '🎙️ リッスン中...',
+        'status-stopped': '⏹️ 停止',
+        'start-btn-text': '🎙️ 開始',
+        'stop-btn-text': '停止',
+        'lang-label': '言語',
+        'tts-label': '🔊 TTS',
+        'volume-label': '音量',
+        'speed-label': 'スピード',
+        'modal-title-info': '📱 ライブ翻訳',
+        'info-description': 'ホストの音声をリアルタイムで翻訳します。',
+        'os-title': '📱 使い方',
+        'os-guide-android': '🤖 Android: PIPボタンをタップ → TikTokが最大化 → 翻訳がPIPオーバーレイで表示',
+        'os-guide-ios': '🍎 iOS: TikTokをPIPモードで保つ → このアプリを最大化 → バックグラウンドで翻訳が機能',
+        'supported-features-label': '✨ 機能',
+        'supported-features': '• リアルタイム音声認識 (韓国語)<br>• 14言語翻訳<br>• TTS音声再生 (On/Off)<br>• PIPモード (Android)<br>• 音量・速度調整',
+        'close-info-btn': '閉じる',
+        'mic-section-label': '🎤 マイク',
+        'mic-btn': 'マイク権限を確認',
+        'recognition-lang-label': '認識言語',
+        'recognition-speed-label': '認識スピード',
+        'speed-slow': '遅い (精度重視)',
+        'speed-normal': '標準',
+        'speed-fast': '速い (反応性重視)',
+        'settings-title': '⚙️ 設定',
+        'settings-close-btn': '完了',
+        'translation-label-prefix': '🌐 翻訳',
+        'pip-title-prefix': '🌐 翻訳',
+        'contact-tiktok': '🎵 TikTok',
+        'contact-kakao': '💬 Kakao'
+      },
+      'th': {
+        'app-title': 'Live Translator',
+        'status-waiting': 'รอการเริ่มต้น...',
+        'status-listening': '🎙️ กำลังฟัง...',
+        'status-stopped': '⏹️ หยุด',
+        'start-btn-text': '🎙️ เริ่มต้น',
+        'stop-btn-text': 'หยุด',
+        'lang-label': 'ภาษา',
+        'tts-label': '🔊 TTS',
+        'volume-label': 'ระดับเสียง',
+        'speed-label': 'ความเร็ว',
+        'modal-title-info': '📱 Live Translator',
+        'info-description': 'แปลเสียงของเจ้าภาพแบบเรียลไทม์',
+        'os-title': '📱 วิธีใช้งาน',
+        'os-guide-android': '🤖 Android: แตะปุ่ม PIP → Tiktok จะขยายใหญ่ → การแปลจะแสดงเป็นการซ้อนทับ PIP',
+        'os-guide-ios': '🍎 iOS: เก็บ Tiktok ไว้ในโหมด PIP → ขยายใหญ่แอปนี้ → การแปลจะทำงานในพื้นหลัง',
+        'supported-features-label': '✨ คุณสมบัติ',
+        'supported-features': '• การจดจำเสียงแบบเรียลไทม์ (เกาหลี)<br>• แปลเป็น 14 ภาษา<br>• การเล่นเสียง TTS (เปิด/ปิด)<br>• โหมด PIP (Android)<br>• การปรับระดับเสียงและความเร็ว',
+        'close-info-btn': 'ปิด',
+        'mic-section-label': '🎤 ไมโครโฟน',
+        'mic-btn': 'ตรวจสอบสิทธิ์ไมโครโฟน',
+        'recognition-lang-label': 'ภาษาการจดจำ',
+        'recognition-speed-label': 'ความเร็วการจดจำ',
+        'speed-slow': 'ช้า (ความแม่นยำสูง)',
+        'speed-normal': 'ปกติ',
+        'speed-fast': 'เร็ว (การตอบสนองสูง)',
+        'settings-title': '⚙️ การตั้งค่า',
+        'settings-close-btn': 'เสร็จ',
+        'translation-label-prefix': '🌐 การแปล',
+        'pip-title-prefix': '🌐 การแปล'
+      },
+      'id': {
+        'app-title': 'Live Translator',
+        'status-waiting': 'Menunggu untuk memulai...',
+        'status-listening': '🎙️ Sedang mendengarkan...',
+        'status-stopped': '⏹️ Berhenti',
+        'start-btn-text': '🎙️ Mulai',
+        'stop-btn-text': 'Berhenti',
+        'lang-label': 'Bahasa',
+        'tts-label': '🔊 TTS',
+        'volume-label': 'Volume',
+        'speed-label': 'Kecepatan',
+        'modal-title-info': '📱 Live Translator',
+        'info-description': 'Terjemahkan suara host secara real-time.',
+        'os-title': '📱 Cara Menggunakan',
+        'os-guide-android': '🤖 Android: Ketuk tombol PIP → Tiktok akan dimaksimalkan → Terjemahan ditampilkan sebagai overlay PIP',
+        'os-guide-ios': '🍎 iOS: Jaga Tiktok dalam mode PIP → Maksimalkan aplikasi ini → Terjemahan berfungsi di latar belakang',
+        'supported-features-label': '✨ Fitur',
+        'supported-features': '• Pengenalan suara real-time (Korea)<br>• Terjemahan 14 bahasa<br>• Putar suara TTS (Aktif/Nonaktif)<br>• Mode PIP (Android)<br>• Penyesuaian volume dan kecepatan',
+        'close-info-btn': 'Tutup',
+        'mic-section-label': '🎤 Mikrofon',
+        'mic-btn': 'Periksa izin mikrofon',
+        'recognition-lang-label': 'Bahasa pengenalan',
+        'recognition-speed-label': 'Kecepatan pengenalan',
+        'speed-slow': 'Lambat (Akurasi tinggi)',
+        'speed-normal': 'Normal',
+        'speed-fast': 'Cepat (Daya tanggap tinggi)',
+        'settings-title': '⚙️ Pengaturan',
+        'settings-close-btn': 'Selesai',
+        'translation-label-prefix': '🌐 Terjemahan',
+        'pip-title-prefix': '🌐 Terjemahan'
+      },
+      'fil': {
+        'app-title': 'Live Translator',
+        'status-waiting': 'Naghihintay na magsimula...',
+        'status-listening': '🎙️ Nakikinig...',
+        'status-stopped': '⏹️ Huminto',
+        'start-btn-text': '🎙️ Magsimula',
+        'stop-btn-text': 'Huminto',
+        'lang-label': 'Wika',
+        'tts-label': '🔊 TTS',
+        'volume-label': 'Lakas ng Tunog',
+        'speed-label': 'Bilis',
+        'modal-title-info': '📱 Live Translator',
+        'info-description': 'I-translate ang boses ng host nang real-time.',
+        'os-title': '📱 Paano Gamitin',
+        'os-guide-android': '🤖 Android: I-tap ang PIP button → Tiktok ay ite-maximize → Ang pagsasalin ay ipinapakita bilang overlay ng PIP',
+        'os-guide-ios': '🍎 iOS: Panatilihing nasa PIP mode ang Tiktok → Maximize ang app na ito → Gumagana ang pagsasalin sa background',
+        'supported-features-label': '✨ Mga Feature',
+        'supported-features': '• Real-time speech recognition (Koreano)<br>• Pagsasalin sa 14 wika<br>• Pagpapatunog ng TTS (On/Off)<br>• PIP mode (Android)<br>• Pagsasaayos ng lakas ng tunog at bilis',
+        'close-info-btn': 'Isara',
+        'mic-section-label': '🎤 Mikropono',
+        'mic-btn': 'Suriin ang pahintulot ng mikropono',
+        'recognition-lang-label': 'Wika ng pagkilala',
+        'recognition-speed-label': 'Bilis ng pagkilala',
+        'speed-slow': 'Mabagal (Mataas na katumpakan)',
+        'speed-normal': 'Normal',
+        'speed-fast': 'Mabilis (Mataas na pagtugon)',
+        'settings-title': '⚙️ Mga Setting',
+        'settings-close-btn': 'Tapos na',
+        'translation-label-prefix': '🌐 Pagsasalin',
+        'pip-title-prefix': '🌐 Pagsasalin'
+      },
+      'ms': {
+        'app-title': 'Live Translator',
+        'status-waiting': 'Menunggu untuk dimulai...',
+        'status-listening': '🎙️ Sedang mendengar...',
+        'status-stopped': '⏹️ Berhenti',
+        'start-btn-text': '🎙️ Mula',
+        'stop-btn-text': 'Berhenti',
+        'lang-label': 'Bahasa',
+        'tts-label': '🔊 TTS',
+        'volume-label': 'Kelantangan',
+        'speed-label': 'Kecepatan',
+        'modal-title-info': '📱 Live Translator',
+        'info-description': 'Terjemahkan suara hos secara real-time.',
+        'os-title': '📱 Cara Menggunakan',
+        'os-guide-android': '🤖 Android: Ketuk butang PIP → Tiktok akan dimaksimalkan → Terjemahan ditunjukkan sebagai liputan PIP',
+        'os-guide-ios': '🍎 iOS: Simpan Tiktok dalam mod PIP → Maksimalkan apl ini → Terjemahan berfungsi di latar belakang',
+        'supported-features-label': '✨ Ciri-ciri',
+        'supported-features': '• Pengecaman suara real-time (Korea)<br>• Terjemahan 14 bahasa<br>• Main semula suara TTS (Hidup/Mati)<br>• Mod PIP (Android)<br>• Pelarasan kelantangan dan kecepatan',
+        'close-info-btn': 'Tutup',
+        'mic-section-label': '🎤 Mikrofon',
+        'mic-btn': 'Periksa kebenaran mikrofon',
+        'recognition-lang-label': 'Bahasa pengecaman',
+        'recognition-speed-label': 'Kecepatan pengecaman',
+        'speed-slow': 'Perlahan (Ketepatan tinggi)',
+        'speed-normal': 'Biasa',
+        'speed-fast': 'Cepat (Tindak balas tinggi)',
+        'settings-title': '⚙️ Tetapan',
+        'settings-close-btn': 'Selesai',
+        'translation-label-prefix': '🌐 Terjemahan',
+        'pip-title-prefix': '🌐 Terjemahan'
+      }
+    };
+
+    const app = {
+      isListening: false,
+      selectedLanguage: 'en',
+      ttsEnabled: true,
+      recognition: null,
+      synth: window.speechSynthesis,
+      recognitionLang: 'ko-KR',
+      recognitionSpeed: 'normal',
+      volume: 0.8,
+      speed: 0.9,
+      currentUILang: 'en',
+      hostId: null,
+      isHost: false,
+      isAndroid: /Android/.test(navigator.userAgent),
+      isIOS: /iPhone|iPad|iPod/.test(navigator.userAgent),
+      isIPhone: /iPhone|iPod/.test(navigator.userAgent) && !/iPad/.test(navigator.userAgent),
+      isIPad: /iPad/.test(navigator.userAgent),
+      lastTTSText: null,
+      isTTSPlaying: false,
+      currentMode: 'normal' // 'normal', 'pip', 'dual'
+    };
+
+    function getHostIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('host');
+    }
+
+    function setUILanguage(lang) {
+      app.currentUILang = lang;
+      document.documentElement.lang = lang;
+      
+      Object.keys(i18n[lang] || i18n['en']).forEach(key => {
+        const element = document.getElementById(key.replace(/_/g, '-'));
+        if (element && key !== 'os-guide-android' && key !== 'os-guide-ios') {
+          element.textContent = i18n[lang][key] || i18n['en'][key];
+        }
+      });
+
+      const osGuideContent = document.getElementById('os-guide-content');
+      const osKey = app.isAndroid ? 'os-guide-android' : 'os-guide-ios';
+      osGuideContent.textContent = i18n[lang][osKey] || i18n['en'][osKey];
+
+      updateTranslationLabel();
+    }
+
+    async function authenticateHost() {
+      const hostId = getHostIdFromURL();
+      
+      if (!hostId) {
+        showError('Invalid link');
+        return false;
+      }
+
+      try {
+        const response = await fetch(`/api/validate-host?hostId=${hostId}`);
+        const data = await response.json();
+        
+        if (data.valid) {
+          app.hostId = hostId;
+          app.isHost = true;
+          
+          document.getElementById('host-indicator').style.display = 'flex';
+          document.getElementById('host-name').textContent = data.hostName || 'Host';
+          
+          const userLanguage = detectUserLanguage();
+          setUILanguage(userLanguage);
+          
+          return true;
+        } else {
+          showError('Invalid host link');
+          return false;
+        }
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        showError('Authentication error');
+        return false;
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('auth-error');
+      const errorText = document.getElementById('error-text');
+      errorText.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+
+    function detectUserLanguage() {
+      const browserLang = navigator.language || navigator.userLanguage;
+      const langMap = {
+        'en': 'en', 'ja': 'ja', 'zh': 'zh', 'es': 'es',
+        'fr': 'fr', 'de': 'de', 'pt': 'pt', 'ru': 'ru',
+        'it': 'it', 'tr': 'tr', 'th': 'th', 'id': 'id',
+        'fil': 'fil', 'ms': 'ms'
+      };
+      
+      const lang = browserLang.split('-')[0];
+      return langMap[lang] || 'en';
+    }
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        alert('Speech recognition not supported');
+        return;
+      }
+
+      app.recognition = new SpeechRecognition();
+      app.recognition.lang = app.recognitionLang;
+      app.recognition.continuous = true;
+      app.recognition.interimResults = true;
+
+      app.recognition.onstart = () => {
+        updateStatus('listening');
+      };
+
+      app.recognition.onresult = async (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        const text = finalTranscript || interimTranscript;
+        
+        if (text) {
+          const translated = await translateText(text);
+          updateTranslation(translated);
+          
+          if (app.ttsEnabled && finalTranscript && translated !== app.lastTTSText) {
+            app.lastTTSText = translated;
+            playTTS(translated);
+          }
+        }
+      };
+
+      app.recognition.onerror = (event) => {
+        console.error('Recognition error:', event.error);
+        
+        if (app.isListening) {
+          setTimeout(() => {
+            app.recognition.start();
+          }, 1000);
+        }
+      };
+
+      app.recognition.onend = () => {
+        if (app.isListening) {
+          setTimeout(() => {
+            app.recognition.start();
+          }, 500);
+        } else {
+          updateStatus('stopped');
+        }
+      };
+    }
+
+    async function translateText(text) {
+      try {
+        const response = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: text,
+            targetLang: app.selectedLanguage,
+            sourceLang: 'ko'
+          })
+        });
+        
+        const data = await response.json();
+        return data.translated || text;
+      } catch (error) {
+        console.error('Translation error:', error);
+        return text;
+      }
+    }
+
+    function updateTranslation(text) {
+      document.getElementById('translation-text').textContent = text;
+      document.getElementById('pip-content').textContent = text;
+      updateTranslationLabel();
+    }
+
+    function updateTranslationLabel() {
+      const langMap = {
+        'en': 'English', 'ja': '日本語', 'zh': '中文', 'es': 'Español',
+        'fr': 'Français', 'de': 'Deutsch', 'pt': 'Português', 'ru': 'Русский',
+        'it': 'Italiano', 'tr': 'Türkçe', 'th': 'ไทย', 'id': 'Bahasa Indonesia',
+        'fil': 'Filipino', 'ms': 'Bahasa Melayu'
+      };
+
+      const label = `🌐 ${langMap[app.selectedLanguage] || app.selectedLanguage}`;
+      document.getElementById('translation-label').textContent = label;
+      document.getElementById('pip-title').textContent = label;
+    }
+
+    function playTTS(text) {
+      if (!app.ttsEnabled || !app.synth || app.isTTSPlaying) return;
+
+      app.synth.cancel();
+      app.isTTSPlaying = true;
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      const langMap = {
+        'en': 'en-US', 'ja': 'ja-JP', 'zh': 'zh-CN', 'es': 'es-ES',
+        'fr': 'fr-FR', 'de': 'de-DE', 'pt': 'pt-BR', 'ru': 'ru-RU',
+        'it': 'it-IT', 'tr': 'tr-TR', 'th': 'th-TH', 'id': 'id-ID',
+        'fil': 'fil-PH', 'ms': 'ms-MY'
+      };
+
+      utterance.lang = langMap[app.selectedLanguage] || 'en-US';
+      utterance.rate = app.speed;
+      utterance.pitch = 1;
+      utterance.volume = app.volume;
+
+      utterance.onend = () => {
+        app.isTTSPlaying = false;
+      };
+
+      app.synth.speak(utterance);
+    }
+
+    function updateStatus(status) {
+      const statusMap = {
+        'listening': { text: 'status-listening', active: true },
+        'stopped': { text: 'status-stopped', active: false }
+      };
+
+      const current = statusMap[status];
+      if (current) {
+        document.getElementById('status-text').textContent = 
+          i18n[app.currentUILang][current.text];
+        
+        const indicator = document.getElementById('mic-indicator');
+        if (current.active) {
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('active');
+        }
+      }
+    }
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+      app.isListening = true;
+      document.getElementById('start-btn').style.display = 'none';
+      document.getElementById('stop-btn').style.display = 'flex';
+      app.recognition.start();
+      updateStatus('listening');
+    });
+
+    document.getElementById('stop-btn').addEventListener('click', () => {
+      app.isListening = false;
+      document.getElementById('start-btn').style.display = 'flex';
+      document.getElementById('stop-btn').style.display = 'none';
+      app.recognition.stop();
+      app.synth.cancel();
+      updateStatus('stopped');
+    });
+
+    document.getElementById('language-select').addEventListener('change', (e) => {
+      app.selectedLanguage = e.target.value;
+      updateTranslationLabel();
+    });
+
+    document.getElementById('tts-toggle').addEventListener('change', (e) => {
+      app.ttsEnabled = e.target.checked;
+      // PIP 모드에서도 토글 동기화
+      const pipTtsToggle = document.getElementById('pip-tts-toggle');
+      if (pipTtsToggle) {
+        pipTtsToggle.checked = e.target.checked;
+      }
+    });
+
+    // PIP 모드 제어 (존재하면)
+    const pipTtsToggle = document.getElementById('pip-tts-toggle');
+    if (pipTtsToggle) {
+      pipTtsToggle.addEventListener('change', (e) => {
+        app.ttsEnabled = e.target.checked;
+        document.getElementById('tts-toggle').checked = e.target.checked;
+      });
+    }
+
+    const pipVolumeSlider = document.getElementById('pip-volume');
+    if (pipVolumeSlider) {
+      pipVolumeSlider.addEventListener('input', (e) => {
+        app.volume = e.target.value / 100;
+        document.getElementById('volume-slider').value = e.target.value;
+        document.getElementById('volume-value').textContent = e.target.value + '%';
+        document.getElementById('pip-volume-value').textContent = e.target.value + '%';
+      });
+    }
+
+    const pipSpeedSlider = document.getElementById('pip-speed');
+    if (pipSpeedSlider) {
+      pipSpeedSlider.addEventListener('input', (e) => {
+        app.speed = parseFloat(e.target.value);
+        document.getElementById('speed-slider').value = e.target.value;
+        document.getElementById('speed-value').textContent = e.target.value + 'x';
+        document.getElementById('pip-speed-value').textContent = e.target.value + 'x';
+      });
+    }
+
+    document.getElementById('volume-slider').addEventListener('input', (e) => {
+      app.volume = e.target.value / 100;
+      document.getElementById('volume-value').textContent = e.target.value + '%';
+      // PIP 모드에도 동기화
+      const pipVolume = document.getElementById('pip-volume');
+      if (pipVolume) {
+        pipVolume.value = e.target.value;
+        document.getElementById('pip-volume-value').textContent = e.target.value + '%';
+      }
+    });
+
+    document.getElementById('speed-slider').addEventListener('input', (e) => {
+      app.speed = parseFloat(e.target.value);
+      document.getElementById('speed-value').textContent = e.target.value + 'x';
+      // PIP 모드에도 동기화
+      const pipSpeed = document.getElementById('pip-speed');
+      if (pipSpeed) {
+        pipSpeed.value = e.target.value;
+        document.getElementById('pip-speed-value').textContent = e.target.value + 'x';
+      }
+    });
+
+    document.getElementById('info-btn').addEventListener('click', () => {
+      document.getElementById('info-modal').classList.add('show');
+    });
+
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      document.getElementById('settings-modal').classList.add('show');
+    });
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+    });
+
+    document.getElementById('pip-btn').addEventListener('click', () => {
+      const modeSelector = document.getElementById('mode-selector');
+      modeSelector.classList.toggle('show');
+    });
+
+    // 전역 selectMode 함수
+    window.selectMode = function(mode) {
+      if (mode === 'pip') {
+        const pipWindow = document.getElementById('pip-window');
+        pipWindow.classList.add('show');
+        document.getElementById('pip-btn').style.display = 'none';
+      } else if (mode === 'dual') {
+        // 듀얼 모드 활성화
+        alert('듀얼 화면 모드:\n\n🤖 Android: 화면이 상하로 나뉘어 TikTok(위)과 번역(아래)이 표시됩니다.\n\n📱 iPad: Split View로 TikTok(좌)과 번역(우)이 동시 표시됩니다.\n\n시스템 설정에서 "멀티태스킹 & Dock" (iPad) 또는 "앱 분할화면"(Android)을 활성화하세요.');
+        document.getElementById('mode-selector').classList.remove('show');
+      }
+    };
+
+    document.getElementById('pip-close-btn').addEventListener('click', () => {
+      document.getElementById('pip-window').classList.remove('show');
+      document.getElementById('pip-btn').style.display = 'flex';
+    });
+
+    if (!app.isAndroid) {
+      document.getElementById('pip-btn').style.display = 'none';
+    }
+
+    async function requestMicrophonePermission() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        alert('Microphone permission granted!');
+      } catch (error) {
+        alert('Microphone permission required');
+      }
+    }
+
+    window.addEventListener('load', async () => {
+      const isAuthenticated = await authenticateHost();
+      
+      if (!isAuthenticated) {
+        document.getElementById('start-btn').disabled = true;
+        return;
+      }
+
+      setUILanguage(app.currentUILang);
+      initSpeechRecognition();
+
+      document.getElementById('recognition-lang').addEventListener('change', (e) => {
+        app.recognitionLang = e.target.value;
+        if (app.recognition) {
+          app.recognition.lang = e.target.value;
+        }
+      });
+
+      document.getElementById('recognition-speed').addEventListener('change', (e) => {
+        app.recognitionSpeed = e.target.value;
+      });
+
+      if ('wakeLock' in navigator) {
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+          } catch (err) {
+            console.error('Wake Lock failed:', err);
+          }
+        }
+
+        document.addEventListener('visibilitychange', async () => {
+          if (document.hidden) {
+            wakeLock?.release();
+            wakeLock = null;
+          } else {
+            await requestWakeLock();
+          }
+        });
+
+        document.getElementById('start-btn').addEventListener('click', requestWakeLock);
+      }
+    });
+  </script>
+</body>
+</html>
