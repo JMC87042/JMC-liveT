@@ -258,45 +258,45 @@ app.post('/api/translate', (req, res) => {
 
 // ============ HELPER FUNCTIONS ============
 
-// Python으로 음성 비교
+// 간단한 음성 유사도 계산 (Node.js)
 async function compareVoicesOnServer(currentAudio, hostSample) {
-  return new Promise((resolve, reject) => {
-    const python = spawn('python3', [path.join(__dirname, 'compare_voices.py')]);
+  try {
+    // 간단한 바이트 비교 (배경음 제거 없이)
+    // 호스트 샘플과 현재 오디오의 길이와 내용 비교
     
-    let output = '';
-    let errorOutput = '';
+    const currentLength = currentAudio.length;
+    const hostLength = hostSample.length;
     
-    python.stdout.on('data', (data) => {
-      output += data.toString();
-    });
+    // 길이 유사도
+    const lengthSimilarity = 1 - Math.abs(currentLength - hostLength) / Math.max(currentLength, hostLength);
     
-    python.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-    });
+    // 바이트 유사도 (샘플링)
+    let byteSimilarity = 0;
+    const sampleSize = Math.min(1000, currentLength, hostLength);
+    let matches = 0;
     
-    python.on('close', (code) => {
-      if (code === 0) {
-        try {
-          const similarity = parseFloat(output.trim());
-          resolve(similarity);
-        } catch (e) {
-          console.error('파싱 오류:', output);
-          resolve(0);
-        }
-      } else {
-        console.error('Python 오류:', errorOutput);
-        resolve(0);
+    for (let i = 0; i < sampleSize; i++) {
+      const currentByte = currentAudio[i] || 0;
+      const hostByte = hostSample[i] || 0;
+      
+      // 바이트 값이 비슷하면 유사도 증가
+      if (Math.abs(currentByte - hostByte) < 50) {
+        matches++;
       }
-    });
+    }
     
-    const inputData = {
-      currentAudio: currentAudio.toString('base64'),
-      hostSample: hostSample.toString('base64')
-    };
+    byteSimilarity = sampleSize > 0 ? matches / sampleSize : 0;
     
-    python.stdin.write(JSON.stringify(inputData));
-    python.stdin.end();
-  });
+    // 전체 유사도 계산
+    const similarity = (lengthSimilarity * 0.3) + (byteSimilarity * 0.7);
+    
+    console.log(`🔊 유사도: ${similarity.toFixed(2)}`);
+    
+    return similarity;
+  } catch (error) {
+    console.error('유사도 계산 오류:', error);
+    return 0;
+  }
 }
 
 // ============ HEALTH CHECK ============
