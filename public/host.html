@@ -25,14 +25,10 @@
             flex-direction: column;
         }
 
-        /* 헤더 */
         .header {
             padding: 14px 16px;
             background: rgba(10, 14, 39, 0.95);
             border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .header-title {
@@ -44,7 +40,6 @@
             gap: 6px;
         }
 
-        /* 메인 */
         .main-content {
             flex: 1;
             padding: 12px;
@@ -67,13 +62,6 @@
             font-weight: 600;
             color: #667eea;
             margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .status-box {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
         }
 
         .status-item {
@@ -83,6 +71,7 @@
             padding: 6px;
             background: rgba(102, 126, 234, 0.1);
             border-radius: 6px;
+            margin-bottom: 4px;
         }
 
         .status-label {
@@ -102,6 +91,7 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            margin-bottom: 6px;
             transition: all 0.2s;
         }
 
@@ -125,39 +115,6 @@
             cursor: not-allowed;
         }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .control-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .control-label {
-            font-size: 9px;
-            color: #999;
-            font-weight: 600;
-        }
-
-        input[type="text"], select {
-            padding: 8px 10px;
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 6px;
-            color: #fff;
-            font-size: 12px;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         .info-box {
             background: rgba(46, 204, 113, 0.1);
             border: 1px solid rgba(46, 204, 113, 0.3);
@@ -168,234 +125,168 @@
             line-height: 1.5;
         }
 
-        .error-box {
-            background: rgba(231, 76, 60, 0.1);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            border-radius: 6px;
-            padding: 8px;
-            font-size: 10px;
-            color: #e74c3c;
-            display: none;
-        }
-
-        .error-box.show {
-            display: block;
-        }
-
-        /* 푸터 */
         .footer {
             padding: 10px;
             background: rgba(10, 14, 39, 0.95);
             border-top: 1px solid rgba(102, 126, 234, 0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
             font-size: 9px;
             color: #999;
             text-align: center;
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 헤더 -->
         <div class="header">
             <div class="header-title">
                 <span>🎤</span>
-                <span>JMC HOST MODE</span>
+                <span>JMC HOST MODE - 음성 송신</span>
             </div>
         </div>
 
-        <!-- 메인 -->
         <div class="main-content">
-            <!-- 호스트 설정 -->
-            <div class="box">
-                <div class="box-title">📋 호스트 정보</div>
-                <div class="controls">
-                    <div class="control-item">
-                        <label class="control-label">호스트명</label>
-                        <input type="text" id="hostName" placeholder="예: @tnal.sl" value="">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 상태 정보 -->
+            <!-- 상태 -->
             <div class="box">
                 <div class="box-title">📊 상태</div>
-                <div class="status-box">
-                    <div class="status-item">
-                        <span class="status-label">마이크 상태:</span>
-                        <span class="status-value" id="micStatus">❌ 비활성</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">음성 감지:</span>
-                        <span class="status-value" id="voiceStatus">대기 중</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">연결된 시청자:</span>
-                        <span class="status-value" id="viewerCount">0명</span>
-                    </div>
+                <div class="status-item">
+                    <span class="status-label">마이크 상태:</span>
+                    <span class="status-value" id="micStatus">❌ 비활성</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">음성 녹음:</span>
+                    <span class="status-value" id="recordStatus">대기 중</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">데이터 전송:</span>
+                    <span class="status-value" id="sendStatus">준비 중</span>
                 </div>
             </div>
 
-            <!-- 제어 버튼 -->
+            <!-- 제어 -->
             <div class="box">
                 <div class="box-title">⚙️ 제어</div>
-                <div class="controls">
-                    <button class="btn btn-primary" id="startBtn">🎙️ 시작</button>
-                    <button class="btn btn-secondary" id="stopBtn" disabled>⏹️ 중지</button>
-                </div>
+                <button class="btn btn-primary" id="startBtn">🎙️ 시작</button>
+                <button class="btn btn-secondary" id="stopBtn" disabled>⏹️ 중지</button>
             </div>
 
             <!-- 정보 -->
             <div class="info-box">
-                ✅ 마이크 권한을 허용하면 자동으로 음성이 송신됩니다.
+                ✅ "시작"을 누르면 마이크가 활성화됩니다.
+                <br>✅ 음성이 자동으로 녹음되어 데이터로 전송됩니다.
                 <br>✅ 시청자들이 실시간으로 번역을 받습니다.
             </div>
-
-            <!-- 에러 메시지 -->
-            <div class="error-box" id="errorBox"></div>
         </div>
 
-        <!-- 푸터 -->
         <div class="footer">
-            <div>© JMC Global Live Translation</div>
+            © JMC Global Live Translation
         </div>
     </div>
 
     <script>
-        // 상태 관리
         const app = {
-            hostName: 'tnal.sl',
             isRunning: false,
-            recognition: null,
             mediaStream: null,
             mediaRecorder: null,
-            audioContext: null,
-            analyser: null,
-            viewerCount: 0
+            audioChunks: [],
+            hostName: 'tnal.sl'
         };
 
         // URL에서 호스트명 추출
         function getHostFromURL() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('host') || 'tnal.sl';
+            return params.get('host')?.replace('@', '') || 'tnal.sl';
         }
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            app.hostName = getHostFromURL().replace('@', '');
-            document.getElementById('hostName').value = app.hostName;
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                app.recognition = new SpeechRecognition();
-                app.recognition.continuous = true;
-                app.recognition.interimResults = false;
-                app.recognition.lang = 'ko-KR';
-            } else {
-                showError('브라우저가 음성 인식을 지원하지 않습니다.');
-            }
+            app.hostName = getHostFromURL();
+            console.log('🎤 호스트명:', app.hostName);
         });
 
         // 시작 버튼
         document.getElementById('startBtn').addEventListener('click', async () => {
             try {
-                const hostName = document.getElementById('hostName').value || 'tnal.sl';
-                app.hostName = hostName;
-
                 // 마이크 권한 요청
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 app.mediaStream = stream;
+                app.audioChunks = [];
 
-                // 오디오 레벨 분석 (음성 감지용)
-                app.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = app.audioContext.createMediaStreamSource(stream);
-                app.analyser = app.audioContext.createAnalyser();
-                source.connect(app.analyser);
+                // MediaRecorder 설정
+                app.mediaRecorder = new MediaRecorder(stream);
 
-                // 음성 인식 시작
-                if (app.recognition) {
-                    app.recognition.start();
-                    setupRecognitionHandlers();
-                }
+                app.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        app.audioChunks.push(event.data);
+                    }
+                };
+
+                app.mediaRecorder.onstop = async () => {
+                    // 음성 데이터를 blob으로 변환
+                    const audioBlob = new Blob(app.audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+
+                    reader.onloadend = async () => {
+                        // base64로 인코딩
+                        const base64Audio = reader.result.split(',')[1];
+                        
+                        // 서버로 전송
+                        await sendAudioToServer(base64Audio);
+                    };
+
+                    reader.readAsDataURL(audioBlob);
+                };
+
+                // 녹음 시작 (500ms마다 청크 생성)
+                app.mediaRecorder.start(500);
 
                 app.isRunning = true;
                 updateUI();
-                document.getElementById('micStatus').textContent = '✅ 활성';
-                
-                showInfo('마이크가 활성화되었습니다. 이제 말씀하세요!');
+                document.getElementById('micStatus').textContent = '✅ 활성 중';
+                document.getElementById('recordStatus').textContent = '🎙️ 녹음 중';
+                console.log('🎤 음성 녹음 시작');
+
             } catch (error) {
-                showError('마이크 권한 거부: ' + error.message);
-                console.error(error);
+                console.error('마이크 오류:', error);
+                document.getElementById('micStatus').textContent = '❌ 오류: ' + error.message;
             }
         });
 
         // 중지 버튼
         document.getElementById('stopBtn').addEventListener('click', () => {
-            if (app.recognition) {
-                app.recognition.stop();
-            }
-            if (app.mediaStream) {
+            if (app.mediaRecorder && app.isRunning) {
+                app.mediaRecorder.stop();
                 app.mediaStream.getTracks().forEach(track => track.stop());
+                
+                app.isRunning = false;
+                updateUI();
+                document.getElementById('micStatus').textContent = '❌ 비활성';
+                document.getElementById('recordStatus').textContent = '중지됨';
+                console.log('🛑 녹음 중지');
             }
-            app.isRunning = false;
-            updateUI();
-            document.getElementById('micStatus').textContent = '❌ 비활성';
-            document.getElementById('voiceStatus').textContent = '중지됨';
         });
 
-        // 음성 인식 핸들러
-        function setupRecognitionHandlers() {
-            app.recognition.onresult = async (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-
-                if (transcript) {
-                    console.log('🎤 인식:', transcript);
-                    document.getElementById('voiceStatus').textContent = '🎤 ' + transcript.substring(0, 30);
-                    
-                    // 시청자에게 전송
-                    await sendTranscriptToViewers(transcript);
-                }
-            };
-
-            app.recognition.onerror = (event) => {
-                console.error('음성 인식 오류:', event.error);
-                document.getElementById('voiceStatus').textContent = '❌ 오류: ' + event.error;
-            };
-
-            app.recognition.onend = () => {
-                if (app.isRunning) {
-                    app.recognition.start();
-                }
-            };
-        }
-
-        // 시청자에게 음성 전송
-        async function sendTranscriptToViewers(transcript) {
+        // 음성 데이터 서버 전송
+        async function sendAudioToServer(base64Audio) {
             try {
-                const response = await fetch('/api/translate', {
+                const response = await fetch('/api/host/stream', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        text: transcript,
-                        targetLang: 'ko',
-                        hostName: app.hostName
+                        hostName: app.hostName,
+                        audioData: base64Audio
                     })
                 });
 
                 if (response.ok) {
-                    console.log('✅ 시청자에게 전송됨');
+                    console.log('✅ 음성 데이터 전송됨');
+                    document.getElementById('sendStatus').textContent = '✅ 전송됨';
+                } else {
+                    console.error('전송 실패');
+                    document.getElementById('sendStatus').textContent = '❌ 전송 실패';
                 }
             } catch (error) {
-                console.error('전송 오류:', error);
+                console.error('서버 전송 오류:', error);
+                document.getElementById('sendStatus').textContent = '❌ 오류';
             }
         }
 
@@ -403,20 +294,6 @@
         function updateUI() {
             document.getElementById('startBtn').disabled = app.isRunning;
             document.getElementById('stopBtn').disabled = !app.isRunning;
-        }
-
-        // 에러 표시
-        function showError(message) {
-            const box = document.getElementById('errorBox');
-            box.textContent = '❌ ' + message;
-            box.classList.add('show');
-            setTimeout(() => box.classList.remove('show'), 5000);
-        }
-
-        // 정보 표시
-        function showInfo(message) {
-            const box = document.querySelector('.info-box');
-            box.textContent = '✅ ' + message;
         }
     </script>
 </body>
