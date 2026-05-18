@@ -343,6 +343,16 @@
             padding-top: 6px;
             border-top: 1px solid rgba(102, 126, 234, 0.1);
         }
+
+        .host-info {
+            font-size: 9px;
+            color: #667eea;
+            padding: 6px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
@@ -380,6 +390,9 @@
 
         <!-- 컨트롤 패널 -->
         <div class="control-panel">
+            <!-- 호스트 정보 -->
+            <div class="host-info" id="hostInfo"></div>
+
             <div class="select-group">
                 <label class="select-label">언어</label>
                 <select id="languageSelect"></select>
@@ -482,6 +495,12 @@
             return notices[device] || notices['Other'];
         }
 
+        // URL에서 호스트명 추출
+        function getHostFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('host') || null;
+        }
+
         // 앱 상태
         const app = {
             isListening: false,
@@ -498,7 +517,8 @@
             recordingSessionId: null,
             audioChunks: [],
             userCountry: 'US',
-            device: detectDevice()
+            device: detectDevice(),
+            hostUsername: getHostFromURL()
         };
 
         // UI 요소
@@ -507,6 +527,7 @@
         const languageSelect = document.getElementById('languageSelect');
         const translationText = document.getElementById('translationText');
         const deviceNotice = document.getElementById('deviceNotice');
+        const hostInfo = document.getElementById('hostInfo');
         const ttsToggle = document.getElementById('ttsToggle');
         const volumeSlider = document.getElementById('volumeSlider');
         const speedSlider = document.getElementById('speedSlider');
@@ -515,6 +536,16 @@
         const fontSmallBtn = document.getElementById('fontSmallBtn');
         const fontResetBtn = document.getElementById('fontResetBtn');
         const fontLargeBtn = document.getElementById('fontLargeBtn');
+
+        // 호스트 정보 표시
+        function initializeHostInfo() {
+            if (app.hostUsername) {
+                hostInfo.innerHTML = `🎤 호스트: ${app.hostUsername}`;
+                console.log('호스트명:', app.hostUsername);
+            } else {
+                hostInfo.innerHTML = '⚠️ 호스트명 없음';
+            }
+        }
 
         // 기종별 공지 표시
         function initializeDeviceNotice() {
@@ -566,6 +597,11 @@
 
         // 시작 버튼 클릭
         startBtn.addEventListener('click', async () => {
+            if (!app.hostUsername) {
+                alert('호스트명이 필요합니다. 올바른 링크로 접속하세요.');
+                return;
+            }
+
             app.isListening = true;
             startBtn.disabled = true;
             stopBtn.disabled = false;
@@ -631,7 +667,7 @@
             try {
                 const formData = new FormData();
                 formData.append('audio', new Blob([audioData]));
-                formData.append('hostUsername', '@host_a');
+                formData.append('hostUsername', app.hostUsername);
 
                 const response = await fetch('/api/finalize-sample-recording', {
                     method: 'POST',
@@ -641,7 +677,7 @@
                     body: formData
                 });
 
-                console.log('✅ 호스트 샘플 저장됨');
+                console.log('✅ 호스트 샘플 저장됨:', app.hostUsername);
             } catch (error) {
                 console.error('샘플 저장 오류:', error);
             }
@@ -760,6 +796,7 @@
 
         // 초기화
         (async () => {
+            initializeHostInfo();
             initializeDeviceNotice();
             await detectCountry();
             initializeLanguages();
