@@ -68,6 +68,91 @@ app.post('/api/admin/upload-host-voice-sample', (req, res) => {
 
 // TikTok 세션 등록
 app.post('/api/register-tiktok-session', (req, res) => {
+
+// ============ REAL-TIME SAMPLE RECORDING API ============
+
+// 실시간 샘플 녹음 세션 시작
+app.post('/api/start-sample-recording', (req, res) => {
+  const { apiKey } = req.body;
+  
+  if (!validApiKeys[apiKey]) {
+    return res.status(401).json({ error: '유효하지 않은 API 키' });
+  }
+  
+  const recordingSessionId = `REC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  if (!global.recordingSessions) {
+    global.recordingSessions = {};
+  }
+  
+  global.recordingSessions[recordingSessionId] = {
+    apiKey: apiKey,
+    audioChunks: [],
+    createdAt: Date.now()
+  };
+  
+  res.json({ 
+    recordingSessionId: recordingSessionId,
+    message: '30초 샘플 녹음 시작'
+  });
+});
+
+// 샘플 오디오 데이터 수신
+app.post('/api/record-sample-chunk', (req, res) => {
+  const recordingSessionId = req.headers['x-recording-session-id'];
+  const { audioChunk } = req.body;
+  
+  if (!global.recordingSessions || !global.recordingSessions[recordingSessionId]) {
+    return res.status(401).json({ error: '녹음 세션 없음' });
+  }
+  
+  const session = global.recordingSessions[recordingSessionId];
+  session.audioChunks.push(audioChunk);
+  
+  const recordingDuration = Date.now() - session.createdAt;
+  
+  res.json({ 
+    status: 'recording',
+    duration: recordingDuration,
+    chunks: session.audioChunks.length
+  });
+});
+
+// 샘플 녹음 완료 및 처리
+app.post('/api/finalize-sample-recording', (req, res) => {
+  const recordingSessionId = req.headers['x-recording-session-id'];
+  const { hostUsername } = req.body;
+  
+  if (!global.recordingSessions || !global.recordingSessions[recordingSessionId]) {
+    return res.status(401).json({ error: '녹음 세션 없음' });
+  }
+  
+  const session = global.recordingSessions[recordingSessionId];
+  
+  if (session.audioChunks.length === 0) {
+    return res.status(400).json({ error: '오디오 데이터 없음' });
+  }
+  
+  const combinedAudio = Buffer.concat(
+    session.audioChunks.map(chunk => {
+      if (typeof chunk === 'string') {
+        return Buffer.from(chunk, 'base64');
+      }
+      return chunk;
+    })
+  );
+  
+  hostVoiceSamples[hostUsername] = combinedAudio;
+  delete global.recordingSessions[recordingSessionId];
+  
+  console.log(`✅ 호스트 샘플 저장됨: ${hostUsername}`);
+  
+  res.json({ 
+    message: '샘플 녹음 완료 및 저장됨',
+    hostUsername: hostUsername
+  });
+});
+
   const { apiKey, clientIp, hostUsername } = req.body;
   
   if (!validApiKeys[apiKey]) {
