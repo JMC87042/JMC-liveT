@@ -29,9 +29,8 @@ const validApiKeys = {
 const tiktokSessions = {};
 const hostSessionTimers = {};
 
-// ============ API ROUTES (먼저 정의) ============
+// ============ API ROUTES ============
 
-// Health Check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok',
@@ -40,7 +39,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 샘플 녹음 시작
 app.post('/api/start-sample-recording', (req, res) => {
   const recordingSessionId = `REC_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
@@ -60,7 +58,6 @@ app.post('/api/start-sample-recording', (req, res) => {
   });
 });
 
-// 샘플 오디오 청크 수신
 app.post('/api/record-sample-chunk', (req, res) => {
   const recordingSessionId = req.headers['x-recording-session-id'];
   const { audioChunk } = req.body;
@@ -76,7 +73,6 @@ app.post('/api/record-sample-chunk', (req, res) => {
   });
 });
 
-// 샘플 녹음 완료
 app.post('/api/finalize-sample-recording', (req, res) => {
   const recordingSessionId = req.headers['x-recording-session-id'];
   const { hostUsername } = req.body;
@@ -105,7 +101,6 @@ app.post('/api/finalize-sample-recording', (req, res) => {
   });
 });
 
-// 번역 API
 app.post('/api/translate', (req, res) => {
   const { text, targetLang } = req.body;
   const sourceText = encodeURIComponent(text);
@@ -123,15 +118,14 @@ app.post('/api/translate', (req, res) => {
     });
 });
 
-// ============ CATCH-ALL ROUTE (마지막에 정의) ============
+// ============ STATIC FILE & CATCH-ALL ============
 
-app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'public', 'index-final.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('File not found');
-  }
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ============ START SERVER ============
