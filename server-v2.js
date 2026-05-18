@@ -14,8 +14,8 @@ const app = express();
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || '*'
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(fileUpload());
 app.use(express.static('public'));
 
@@ -30,44 +30,6 @@ const validApiKeys = {
 };
 const tiktokSessions = {};
 const hostSessionTimers = {};
-
-// ============ ADMIN API ============
-
-// 호스트 음성 샘플 업로드
-app.post('/api/admin/upload-host-voice-sample', (req, res) => {
-  const adminKey = req.headers['admin-key'];
-  
-  if (adminKey !== ADMIN_KEY) {
-    return res.status(401).json({ error: '관리자 권한 필요' });
-  }
-  
-  if (!req.files || !req.files.voiceSample) {
-    return res.status(400).json({ error: '음성 파일이 없습니다' });
-  }
-  
-  const hostUsername = req.body.hostUsername || '';
-  const voiceSample = req.files.voiceSample;
-  
-  if (!hostUsername) {
-    return res.status(400).json({ error: 'hostUsername이 필요합니다' });
-  }
-  
-  // 저장
-  hostVoiceSamples[hostUsername] = voiceSample.data;
-  
-  console.log(`✅ 호스트 음성 샘플 저장: ${hostUsername}`);
-  
-  res.json({ 
-    message: '음성 샘플 업로드됨',
-    hostUsername: hostUsername,
-    size: voiceSample.size
-  });
-});
-
-// ============ SESSION API ============
-
-// TikTok 세션 등록
-app.post('/api/register-tiktok-session', (req, res) => {
 
 // ============ REAL-TIME SAMPLE RECORDING API ============
 
@@ -90,6 +52,8 @@ app.post('/api/start-sample-recording', (req, res) => {
     audioChunks: [],
     createdAt: Date.now()
   };
+  
+  console.log(`🎤 샘플 녹음 시작: ${recordingSessionId}`);
   
   res.json({ 
     recordingSessionId: recordingSessionId,
@@ -153,6 +117,10 @@ app.post('/api/finalize-sample-recording', (req, res) => {
   });
 });
 
+// ============ SESSION API ============
+
+// TikTok 세션 등록
+app.post('/api/register-tiktok-session', (req, res) => {
   const { apiKey, clientIp, hostUsername } = req.body;
   
   if (!validApiKeys[apiKey]) {
@@ -169,7 +137,8 @@ app.post('/api/finalize-sample-recording', (req, res) => {
     expiresAt: Date.now() + 3600000,
     isActive: true,
     lastCheckIn: Date.now(),
-    lastHostVoiceTime: Date.now()
+    lastHostVoiceTime: Date.now(),
+    sampleRecorded: false
   };
   
   // 10분 강제 종료 타이머 설정
@@ -178,8 +147,11 @@ app.post('/api/finalize-sample-recording', (req, res) => {
     const session = tiktokSessions[sessionId];
     if (session) {
       session.isActive = false;
+      // 샘플 삭제
+      delete hostVoiceSamples[session.hostUsername];
+      console.log(`🗑️ 호스트 샘플 삭제됨: ${session.hostUsername}`);
     }
-  }, 600000);
+  }, 600000);  // 10분
   
   console.log(`✅ 세션 등록: ${sessionId}`);
   
@@ -190,7 +162,7 @@ app.post('/api/finalize-sample-recording', (req, res) => {
   });
 });
 
-// 호스트 음성 검증 (가장 중요한 API)
+// 호스트 음성 검증
 app.post('/api/verify-host-voice', async (req, res) => {
   const hostUsername = req.body.hostUsername;
   const sessionId = req.headers['x-session-id'];
@@ -236,6 +208,9 @@ app.post('/api/verify-host-voice', async (req, res) => {
         const session = tiktokSessions[sessionId];
         if (session) {
           session.isActive = false;
+          // 샘플 삭제
+          delete hostVoiceSamples[session.hostUsername];
+          console.log(`🗑️ 호스트 샘플 삭제됨: ${session.hostUsername}`);
         }
       }, 600000);
       
@@ -314,7 +289,6 @@ async function compareVoicesOnServer(currentAudio, hostSample) {
       }
     });
     
-    // JSON으로 데이터 전송
     const inputData = {
       currentAudio: currentAudio.toString('base64'),
       hostSample: hostSample.toString('base64')
