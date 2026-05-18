@@ -312,7 +312,15 @@ app.get('/api/health', (req, res) => {
 // ============ ROOT ROUTE ============
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index-final.html'));
+  const filePath = path.join(__dirname, 'public', 'index-final.html');
+  console.log('Serving:', filePath);
+  res.sendFile(filePath);
+});
+
+// 모든 다른 경로도 index.html 제공
+app.get('*', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'index-final.html');
+  res.sendFile(filePath);
 });
 
 // ============ START SERVER ============
